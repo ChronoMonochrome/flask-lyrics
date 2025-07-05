@@ -6,7 +6,7 @@ services:
     env_file:
       - ./.env
     image: mysql:8.0 # Using MySQL 8.0 image
-    container_name: mysql_db
+    container_name: japaneseriddle_db
     volumes:
       # Persistent volume for database data, so data is not lost on container restart
       - db_data:/var/lib/mysql
@@ -30,7 +30,7 @@ services:
     build:
       context: . # Build context is the current directory
       dockerfile: Dockerfile.web # Use the Dockerfile.web to build this service's image
-    container_name: flask_app
+    container_name: flask_japanese_riddle_app
     restart: always # Always restart the container if it stops
     ports:
       # Expose port 8012 for internal communication with Nginx (optional for external access)
@@ -50,7 +50,7 @@ services:
     build:
       context: . # Build context is the current directory
       dockerfile: Dockerfile.nginx # Use the Dockerfile.nginx to build this service's image
-    container_name: nginx_proxy
+    container_name: nginx_proxy_japanese_riddle
     restart: always # Always restart the container if it stops
     ports:
       # Map host ports 8081 and 8444 to container ports 80 and 443

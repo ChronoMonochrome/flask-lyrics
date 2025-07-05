@@ -12,13 +12,19 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 from werkzeug.exceptions import HTTPException, NotFound
+from flask_jwt_extended import JWTManager # Import JWTManager
 
 from .factory import create_app
 from .models import db # Import db from models
+
 app = create_app()
 
 # Initialize SQLAlchemy with the app
 db.init_app(app)
+
+# Initialize Flask-JWT-Extended
+app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "development_secret_key_fallback") # Use the same SECRET_KEY for JWT
+jwt = JWTManager(app) # Initialize JWTManager with your app instance
 
 # Initialize CORS
 cors = CORS(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], "allow_headers": "*"}})
@@ -26,7 +32,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST
 # Now import logger, models, and routes as app is fully initialized
 from app.logger import logger
 from app import models
-from app.models import db
+from app.models import db # Re-import db after models are defined if needed, but usually redundant
 from app import routes
 from app.api import api_bp # Import the API blueprint
 

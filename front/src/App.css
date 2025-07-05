@@ -1,38 +1,141 @@
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  background-color: #333;
+  margin-bottom: 20px;
+}
+
+nav li {
+  margin: 0 15px;
+}
+
+nav a, nav button {
   color: white;
+  text-decoration: none;
+  padding: 15px 20px;
+  display: block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
 }
 
-.App-link {
-  color: #61dafb;
+nav a:hover, nav button:hover {
+  background-color: #575757;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+main {
+  flex-grow: 1;
+  padding: 20px 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+form div {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+form button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+.riddle-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+.riddle-card h3 {
+  color: #007bff;
+  margin-top: 0;
+}
+
+.riddle-card p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.riddle-card input[type="text"] {
+  width: calc(100% - 22px); /* Adjust for padding and border */
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.riddle-card button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.riddle-card button:hover {
+  background-color: #218838;
+}
+
+.riddle-status {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.riddle-status.correct {
+  color: green;
+}
+
+.riddle-status.incorrect {
+  color: red;
 }
