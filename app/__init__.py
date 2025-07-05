@@ -38,7 +38,7 @@ app.config['JWT_TOKEN_LOCATION'] = ['headers'] # Common choice for APIs
 
 # Initialize extensions
 db.init_app(app)
-CORS(app) # Initialize CORS if you are using it (highly likely for a React/Flask setup)
+cors = CORS(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], "allow_headers": "*"}})
 jwt = JWTManager(app) # Initialize JWTManager with the app instance directly
 
 # Register blueprints
