@@ -8,6 +8,22 @@ from app import app, db
 from app.models import Riddle, User, Answer # Ensure Answer is imported if you define it
 from werkzeug.security import generate_password_hash
 
+from dotenv import load_dotenv
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+print(BASE_DIR)
+
+from app.logger import logger
+
+# Load environment variables
+if os.path.exists(os.path.join(BASE_DIR, '.env.local')):
+    load_dotenv(os.path.join(BASE_DIR, '.env.local'))
+    logger.info(f"Loaded env from .env.local")
+else:
+    load_dotenv(os.path.join(BASE_DIR, '.env'))
+    logger.info(f"Loaded env from .env")
+
+
 def seed_database():
     with app.app_context():
         print("Checking if database tables exist...")

@@ -42,13 +42,6 @@ if os.path.exists(os.path.join(BASE_DIR, '.env.local')):
 else:
     load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# Initialize Flask-JWT-Extended
-# NOTE: This needs to be initialized with the Flask app, which happens in app/__init__.py
-# For now, we'll put the JWTManager instance here and ensure `init_app` is called.
-# The app factory structure makes this slightly tricky, but for a simple case,
-# we'll assume current_app is available or pass the app object.
-# Let's add JWTManager in app/__init__.py for proper initialization.
-
 # Model for User (for API serialization)
 user_model = api.model('User', {
     'id': fields.String(readOnly=True, description='The user unique identifier'),
@@ -65,6 +58,9 @@ riddle_model = api.model('Riddle', {
     'id': fields.String(readOnly=True, description='The riddle unique identifier'),
     'text_kanji': fields.String(required=True, description='The riddle text with kanji'),
     'text_hiragana': fields.String(required=True, description='The hiragana reading of the riddle text'),
+    'english_text': fields.String(required=True, description='The English translation of the riddle text'), # ADDED
+    'category': fields.String(required=True, description='The category of the riddle'), # ADDED
+    'difficulty': fields.String(required=True, description='The difficulty of the riddle'), # ADDED
     'xp_reward': fields.Integer(description='XP awarded for solving this riddle'),
     'created_at': fields.DateTime(dt_format='iso8601', readOnly=True),
     'updated_at': fields.DateTime(dt_format='iso8601', readOnly=True)
@@ -74,8 +70,8 @@ riddle_model = api.model('Riddle', {
 answer_model = api.model('Answer', {
     'id': fields.String(readOnly=True, description='The answer unique identifier'),
     'riddle_id': fields.String(required=True, description='The ID of the riddle this answer belongs to'),
-    'text': fields.String(required=True, description='The accepted answer text'),
-    'is_primary': fields.Boolean(description='Is this the primary answer?'),
+    'answer_text': fields.String(required=True, description='The accepted answer text'), # Changed from 'text' to 'answer_text'
+    'is_correct': fields.Boolean(description='Is this one of the correct answers?'), # Changed from 'is_primary' to 'is_correct'
     'created_at': fields.DateTime(dt_format='iso8601', readOnly=True)
 })
 
@@ -218,7 +214,8 @@ class RiddleAnswer(Resource):
             return {'message': 'Riddle already solved by this user.', 'solved': True}, 200
 
         # Check if the submitted answer is correct
-        correct_answers = [ans.text.lower() for ans in riddle.answers]
+        # Ensure 'answer_text' is used for comparison
+        correct_answers = [ans.answer_text.lower() for ans in riddle.answers if ans.is_correct] # Filter for correct answers
         is_correct = submitted_answer_text in correct_answers
 
         if not user_progress:
@@ -226,7 +223,8 @@ class RiddleAnswer(Resource):
             db.session.add(user_progress)
 
         user_progress.last_attempt_answer = submitted_answer_text
-        user_progress.attempted_at = now_utc()
+        user_progress.attempts += 1 # Increment attempts
+        user_progress.last_attempt_at = now_utc() # Update last attempt time
 
         if is_correct:
             user_progress.solved = True
@@ -270,26 +268,26 @@ class RiddleMarkCorrect(Resource):
             user_progress = UserProgress(user_id=user.id, riddle_id=riddle.id)
             db.session.add(user_progress)
 
+        # Only award XP if the riddle was not previously solved.
+        xp_awarded_now = 0
+        if not user_progress.solved:
+            user.xp += riddle.xp_reward
+            user.level = calculate_level(user.xp)
+            db.session.add(user)
+            xp_awarded_now = riddle.xp_reward
+
         user_progress.solved = True
         user_progress.solved_at = now_utc()
         user_progress.manually_corrected = True
         # If user submitted something before, keep it, otherwise set to a default marker
         if not user_progress.last_attempt_answer:
             user_progress.last_attempt_answer = "[Manually Corrected]"
-
-        # Award XP and level up (only if not previously solved)
-        # Check if XP was already awarded for this riddle and user before awarding again
-        # This simple check relies on 'solved' status to avoid double awarding.
-        # If the 'solved' status was False and is now True, award XP.
-        # This is important for "I was correct" button, ensuring XP is given once.
-        if not user_progress.solved_at or user_progress.solved_at.date() != now_utc().date(): # Example: only award once per day if they manually correct again
-             user.xp += riddle.xp_reward
-             user.level = calculate_level(user.xp)
-             db.session.add(user) # Update user XP/level
+        user_progress.attempts += 1 # Increment attempts for manual correction too
+        user_progress.last_attempt_at = now_utc()
 
         try:
             db.session.commit()
-            return {'message': 'Riddle marked as correct!', 'xp_gained': riddle.xp_reward, 'new_xp': user.xp, 'new_level': user.level}, 200
+            return {'message': 'Riddle marked as correct!', 'xp_gained': xp_awarded_now, 'new_xp': user.xp, 'new_level': user.level}, 200
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"Error marking riddle correct: {e}")
@@ -303,6 +301,9 @@ admin_ns = api.namespace('admin', description='Admin operations')
 riddle_add_parser = reqparse.RequestParser()
 riddle_add_parser.add_argument('text_kanji', type=str, required=True, help='Riddle text with kanji cannot be blank!')
 riddle_add_parser.add_argument('text_hiragana', type=str, required=True, help='Riddle text with hiragana cannot be blank!')
+riddle_add_parser.add_argument('english_text', type=str, required=True, help='English translation of the riddle text cannot be blank!') # ADDED
+riddle_add_parser.add_argument('category', type=str, default="General", help='Category of the riddle (default: General)') # ADDED
+riddle_add_parser.add_argument('difficulty', type=str, default="Easy", help='Difficulty of the riddle (default: Easy)') # ADDED
 riddle_add_parser.add_argument('xp_reward', type=int, default=10, help='XP reward for solving this riddle (default 10)')
 riddle_add_parser.add_argument('answers', type=list, location='json', required=True, help='List of accepted answers for the riddle (e.g., ["くだもの", "果物"])')
 
@@ -329,6 +330,9 @@ class AddRiddle(Resource):
         data = riddle_add_parser.parse_args()
         text_kanji = data['text_kanji']
         text_hiragana = data['text_hiragana']
+        english_text = data['english_text'] # ADDED
+        category = data['category'] # ADDED
+        difficulty = data['difficulty'] # ADDED
         xp_reward = data['xp_reward']
         answers_data = data['answers']
 
@@ -338,19 +342,18 @@ class AddRiddle(Resource):
         new_riddle = Riddle(
             text_kanji=text_kanji,
             text_hiragana=text_hiragana,
+            english_text=english_text, # ADDED
+            category=category, # ADDED
+            difficulty=difficulty, # ADDED
             xp_reward=xp_reward
         )
         db.session.add(new_riddle)
         db.session.flush() # To get the ID for related answers
 
-        for ans_text in answers_data:
-            new_answer = Answer(riddle_id=new_riddle.id, text=ans_text, is_primary=False)
+        for i, ans_text in enumerate(answers_data):
+            # Mark the first answer as correct (or handle multiple correct answers if needed)
+            new_answer = Answer(riddle_id=new_riddle.id, answer_text=ans_text, is_correct=(i == 0))
             db.session.add(new_answer)
-        if answers_data:
-            # Mark the first answer as primary, or handle this more robustly if needed
-            first_answer = Answer.query.filter_by(riddle_id=new_riddle.id, text=answers_data[0]).first()
-            if first_answer:
-                first_answer.is_primary = True
 
         try:
             db.session.commit()
@@ -410,9 +413,6 @@ def handle_api_exception(e):
         'details': traceback.format_exc() if is_debug_mode else 'Please contact support.'
     }
     return jsonify(response), 500
-
-# Import RequestParser after Flask-RESTx is initialized
-from flask_restx import reqparse
 
 # Register namespaces with the API
 api.add_namespace(auth_ns)

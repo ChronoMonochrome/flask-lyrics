@@ -45,9 +45,9 @@ class Riddle(db.Model):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     text_kanji = Column(Text, nullable=False)
     text_hiragana = Column(Text, nullable=False)
-    english_text = Column(Text, nullable=False) # <--- ADD THIS
-    category = Column(String(50), nullable=False, default="General") # <--- ADD THIS
-    difficulty = Column(String(20), nullable=False, default="Easy") # <--- ADD THIS
+    english_text = Column(Text, nullable=False) # <--- ADDED
+    category = Column(String(50), nullable=False, default="General") # <--- ADDED
+    difficulty = Column(String(20), nullable=False, default="Easy") # <--- ADDED
     xp_reward = Column(Integer, default=10, nullable=False)
     created_at = Column(DateTime(timezone=True), default=now_utc)
     updated_at = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
@@ -59,12 +59,12 @@ class Riddle(db.Model):
     def __repr__(self):
         return f'<Riddle {self.id}>'
 
-class Answer(db.Model): # Assuming you have an Answer model or will create one
+class Answer(db.Model):
     __tablename__ = 'answers'
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     riddle_id = Column(String(36), ForeignKey('riddles.id'), nullable=False)
-    answer_text = Column(String(255), nullable=False) # This would be the canonical correct answer
-    is_correct = Column(Boolean, default=False) # True if this is one of the correct answers for the riddle
+    answer_text = Column(String(255), nullable=False)
+    is_correct = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=now_utc)
 
     riddle = relationship('Riddle', back_populates='answers')
@@ -77,12 +77,10 @@ class UserProgress(db.Model):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     riddle_id = Column(String(36), ForeignKey('riddles.id'), nullable=False)
-    # This might store the user's attempt or just mark it as solved
     solved = Column(Boolean, default=False, nullable=False)
     attempts = Column(Integer, default=0, nullable=False)
     last_attempt_at = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
 
-    # Composite unique constraint to ensure a user only has one progress entry per riddle
     __table_args__ = (UniqueConstraint('user_id', 'riddle_id', name='_user_riddle_uc'),)
 
     user = relationship('User', back_populates='user_progress')

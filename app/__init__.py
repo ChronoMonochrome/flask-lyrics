@@ -4,14 +4,16 @@ from flask import Flask, request, jsonify, current_app, send_from_directory
 from werkzeug.exceptions import HTTPException, NotFound
 import traceback
 import os
-
+from dotenv import load_dotenv # Import load_dotenv
+from flask_cors import CORS # Import CORS (assuming you need it)
+from flask_jwt_extended import JWTManager # Import JWTManager
 from .models import db
 from .api import api_bp
 
 # Determine the absolute path to your React build's *actual static content root*
 # This is where Create React App places its JS/CSS/image bundles.
 # Inside the container, this is /app/app/static/static
-REACT_STATIC_ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'static') # <--- KEY CHANGE HERE
+REACT_STATIC_ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'static')
 
 # This is where index.html, favicon.ico, manifest.json are.
 # These will be served explicitly via routes below.
@@ -20,10 +22,8 @@ FRONTEND_BUILD_ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__
 
 app = Flask(
     __name__,
-    # Flask's built-in static handler for /static will now look directly into
-    # /app/app/static/static for files like js/main.js and css/main.css
-    static_folder=REACT_STATIC_ROOT_PATH, # <--- Flask will serve /static/* from here
-    static_url_path='/static' # This is the URL prefix for the above folder
+    static_folder=REACT_STATIC_ROOT_PATH,
+    static_url_path='/static'
 )
 
 # Configuration for the app (e.g., from .env, or directly)
@@ -31,11 +31,37 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'a_default_secret_key_if_not_
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# --- JWT Configuration ---
+# IMPORTANT: Use a strong, random, and secret key in your .env file for production!
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'SUPER_SECRET_DEV_KEY_CHANGE_ME_IN_PROD')
+app.config['JWT_TOKEN_LOCATION'] = ['headers'] # Common choice for APIs
+
 # Initialize extensions
 db.init_app(app)
+CORS(app) # Initialize CORS if you are using it (highly likely for a React/Flask setup)
+jwt = JWTManager(app) # Initialize JWTManager with the app instance directly
 
 # Register blueprints
 app.register_blueprint(api_bp, url_prefix='/api')
+
+# --- JWT Callbacks (Optional but Recommended for customizing user loading) ---
+# Example: How to load a user from the database based on the JWT identity
+# You'll need to adjust this based on your User model and how you identify users.
+# from .models import User # Assuming your User model is in models.py
+
+# @jwt.user_lookup_loader
+# def user_lookup_callback(_jwt_header, jwt_data):
+#    identity = jwt_data["sub"] # 'sub' (subject) is the default key for identity
+#    return User.query.filter_by(id=identity).one_or_none() # Example: Lookup user by ID
+
+# @jwt.unauthorized_loader
+# def unauthorized_response(callback):
+#     return jsonify({"msg": "Missing or invalid token"}), 401
+
+# @jwt.invalid_token_loader
+# def invalid_token_response(callback):
+#     return jsonify({"msg": "Signature verification failed"}), 401
+
 
 # --- Static File Serving for React SPA ---
 
@@ -77,7 +103,7 @@ def not_found_error(error):
     if request.path.startswith('/api/'):
         current_app.logger.warning(f"API 404 for path: {request.path}")
         return jsonify(message="API Endpoint Not Found", status=404), 404
-    
+
     # If the request is for a specific static file (e.g., /static/js/main.js),
     # and it genuinely wasn't found, return a proper 404.
     # This is important for browsers so they don't try to interpret index.html as JS/CSS.

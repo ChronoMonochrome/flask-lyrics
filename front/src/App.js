@@ -1,44 +1,29 @@
 // front/src/App.js
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+// REMOVE: import { useAuth } from './contexts/AuthContext'; // This hook should NOT be used directly in App.js
 import './App.css'; // Your main CSS
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import RiddlesPage from './components/RiddlesPage';
-// No specific GuestMode component, it's handled within RiddlesPage for simplicity
+import UserDashboard from './components/UserDashboard';
+import AdminPanel from './components/AdminPanel';
+import RandomRiddlePage from './components/RandomRiddlePage';
+import NavBar from './components/NavBar'; // Assuming you'll create a NavBar component
 
 function App() {
-  // State for authentication token (for authenticated users)
-  // Store token in localStorage for persistence across sessions
-  const [token, setToken] = useState(localStorage.getItem('jwt_token'));
-  const navigate = useNavigate(); // For programmatic navigation
+  // REMOVE: const { currentUser, logout } = useAuth(); // No useAuth() call here
+  // REMOVE: const navigate = useNavigate(); // Move useNavigate into NavBar if needed there
 
-  // Function to handle successful login
-  const handleLogin = (newToken) => {
-    setToken(newToken);
-    localStorage.setItem('jwt_token', newToken);
-    navigate('/riddles'); // Navigate to riddles page after login
-  };
-
-  // Function to handle logout
-  const handleLogout = () => {
-    setToken(null);
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('guest_progress'); // Clear guest progress on logout
-    navigate('/'); // Navigate to home page after logout
-  };
+  // The App component itself should NOT depend on currentUser directly.
+  // The NavBar component will handle conditional links based on auth state.
+  // If a route requires authentication, you'd use a ProtectedRoute pattern,
+  // or handle the redirect/message inside the specific page component (e.g., UserDashboard).
 
   return (
     <div className="App">
-      <nav>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          {!token && <li><Link to="/login">Login</Link></li>}
-          {!token && <li><Link to="/register">Register</Link></li>}
-          {token && <li><button onClick={handleLogout}>Logout</button></li>}
-          <li><Link to="/riddles">Riddles</Link></li> {/* Riddles for both guest and logged in */}
-        </ul>
-      </nav>
+      {/* NavBar will now handle the links and logout logic using useAuth() */}
+      <NavBar /> 
 
       <main>
         <Routes>
@@ -49,9 +34,12 @@ function App() {
               <p>Click "Riddles" to start playing.</p>
             </div>
           } />
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/riddles" element={<RiddlesPage token={token} />} />
+          <Route path="/riddles" element={<RiddlesPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/random-riddle" element={<RandomRiddlePage />} />
         </Routes>
       </main>
     </div>

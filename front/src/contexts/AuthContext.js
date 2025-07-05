@@ -57,12 +57,13 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(null);
     };
 
+    // This block is crucial and already correct!
     if (loading) {
         return <div>Loading user session...</div>;
     }
 
     return (
-        <AuthContext.Provider value={{ currentUser, login, register, logout, setCurrentUser }}>
+        <AuthContext.Provider value={{ currentUser, login, register, logout, setCurrentUser, loading }}>
             {children}
         </AuthContext.Provider>
     );
