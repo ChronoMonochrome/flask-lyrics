@@ -20,9 +20,9 @@ app = Flask(
     # The static_url_path parameter tells Flask what URL prefix to use for
     # automatically serving files from static_folder.
     # If set to None (or omitted), it defaults to '/static'.
-    # This is PERFECT for Create React App's 'static' subfolder,
-    # as CRA-generated paths for JS/CSS bundles are typically like '/static/js/main.js'.
-    static_url_path='/static' # Explicitly set to '/static' for clarity
+    # This is PERFECT for Create React App's 'static' subfolder (e.g., build/static/js/main.js
+    # becomes accessible at /static/js/main.js).
+    static_url_path='/static' # Explicitly set to '/static' for clarity. Flask handles this automatically.
 )
 
 # Configuration for the app (e.g., from .env, or directly)
@@ -42,31 +42,46 @@ app.register_blueprint(api_bp, url_prefix='/api')
 @app.route('/')
 def serve_react_app():
     current_app.logger.info(f"Serving index.html for / from host {request.remote_addr}")
-    return send_from_directory(app.static_folder, 'index.html')
+    # Flask's send_static_file will automatically look in the static_folder.
+    return app.send_static_file('index.html')
 
-# 2. Catch-all for other root-level static assets (like favicon.ico, manifest.json)
-#    AND for client-side routing for React Router
-@app.route('/<path:filename>')
-def serve_root_level_static_and_spa_fallback(filename):
-    # Flask's default static handler at /static will handle files under static/static/
-    # This route is for files directly in the static_folder root (like favicon.ico, manifest.json)
-    # or for client-side routing.
+# 2. Serve root-level static assets like favicon.ico and manifest.json,
+#    and handle client-side routing for React Router.
+#    This route should *NOT* handle paths starting with /static/.
+#    Flask's built-in static handler for static_url_path='/static' handles those.
+@app.route('/<path:path>')
+def serve_root_assets_or_spa_fallback(path):
+    # Log the request path to debug
+    current_app.logger.info(f"Request for /{path} (not / or /api/).")
 
-    # First, check if the requested filename is a known root-level static asset.
-    # If not, assume it's a client-side route and serve index.html.
+    # If the path starts with 'static/', it should be handled by Flask's
+    # internal static file server based on static_url_path.
+    # If it's hitting this route, it means the internal handler wasn't triggered.
+    # This might indicate a routing order issue or a slight misconfiguration.
+    # However, let's make sure this route doesn't interfere with standard static assets.
+    if path.startswith('static/'):
+        # This case should ideally NOT be hit if static_url_path is working correctly.
+        # If it *is* hit, it means Flask's default static handler didn't catch it.
+        # We can try to send it again from here, or raise a NotFound to let Flask handle it if possible.
+        # For robustness, try to serve it explicitly *again* from the static folder.
+        # The `send_from_directory` function correctly handles subdirectories
+        # by searching within the `static_folder` for the full `path` (e.g., 'static/js/main.js').
+        try:
+            return send_from_directory(app.static_folder, path)
+        except NotFound:
+            # If it's still not found, then it's a real 404 for a static asset.
+            # Don't fallback to index.html for specific static asset paths,
+            # as that breaks the browser's loading.
+            current_app.logger.warning(f"Static asset not found: /{path}")
+            raise NotFound() # Re-raise to trigger Flask's 404 handler.
 
-    # IMPORTANT: Ensure favicon.ico and manifest.json are actually in /app/app/static/
-    # This was the prior issue. Assuming you've fixed that by adding them to front/public and rebuilding.
-
-    # Try to serve the file directly from the static_folder root
+    # For other paths (like favicon.ico, manifest.json, or client-side routes like /about)
     try:
-        current_app.logger.info(f"Attempting to serve root-level static file: {filename} from {app.static_folder}")
-        return send_from_directory(app.static_folder, filename)
+        current_app.logger.info(f"Attempting to serve root-level static file: {path} from {app.static_folder}")
+        return send_from_directory(app.static_folder, path)
     except NotFound:
-        # If the file is not found (e.g., it's a client-side route like /about),
-        # then serve index.html for React Router to handle
-        current_app.logger.info(f"File not found: {filename}. Serving index.html for SPA fallback.")
-        return send_from_directory(app.static_folder, 'index.html')
+        current_app.logger.info(f"File not found: {path}. Serving index.html for SPA fallback.")
+        return app.send_static_file('index.html')
 
 
 # --- Error Handlers ---
@@ -78,11 +93,17 @@ def not_found_error(error):
         current_app.logger.warning(f"API 404 for path: {request.path}")
         return jsonify(message="API Endpoint Not Found", status=404), 404
     
-    # For non-API routes, let the serve_root_level_static_and_spa_fallback handle it
-    # This handler should ideally not be hit for client-side routes or missing static files
-    # if the above route correctly falls back to index.html.
-    current_app.logger.warning(f"Unexpected 404 for non-API path: {request.path}. This should ideally be handled by SPA fallback.")
-    return jsonify(message="Resource Not Found", status=404), 404
+    # If the request is for a specific static file (e.g., /static/js/main.js),
+    # and it genuinely wasn't found, return a proper 404.
+    # This is important for browsers so they don't try to interpret index.html as JS/CSS.
+    if request.path.startswith('/static/'):
+        current_app.logger.warning(f"Actual static file 404 for path: {request.path}")
+        return jsonify(message="Static File Not Found", status=404), 404
+
+    # For all other non-API and non-static 404s, let React Router handle it (serve index.html).
+    # This should catch /some/client/route that wasn't matched by any other Flask route.
+    current_app.logger.info(f"Serving index.html as SPA fallback for path: {request.path}")
+    return app.send_static_file('index.html')
 
 
 @app.errorhandler(Exception)
