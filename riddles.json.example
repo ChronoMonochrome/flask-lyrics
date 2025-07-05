@@ -1,0 +1,74 @@
+[
+  {
+    "text_kanji": "私はいつもあなたについて行きますが、あなたには触れません。私は何？",
+    "text_hiragana": "わたしはいつもあなたについていきますが、あなたにはさわりません。わたしはなに？",
+    "english_text": "I always follow you but never touch you. What am I?",
+    "category": "Abstract",
+    "difficulty": "Easy",
+    "xp_reward": 10,
+    "answers": ["影", "かげ", "shadow"]
+  },
+  {
+    "text_kanji": "雨が降ると開いて、晴れると閉じるものは何ですか？",
+    "text_hiragana": "あめがふるとひらいて、はれるととじるもの nanndesuka?",
+    "english_text": "What opens when it rains and closes when it's sunny?",
+    "category": "Daily Life",
+    "difficulty": "Easy",
+    "xp_reward": 10,
+    "answers": ["傘", "かさ", "umbrella"]
+  },
+  {
+    "text_kanji": "冬は熱くて、夏は涼しいものは何ですか？",
+    "text_hiragana": "ふゆはあつくて、なつはすずしいもの nanndesuka?",
+    "english_text": "What is hot in winter and cool in summer?",
+    "category": "Daily Life",
+    "difficulty": "Easy",
+    "xp_reward": 10,
+    "answers": ["ストーブ", "stove"]
+  },
+  {
+    "text_kanji": "口で食べるけれど、口がないものは何ですか？",
+    "text_hiragana": "くちでたべるけれど、くちがないもの nanndesuka?",
+    "english_text": "What eats with its mouth but has no mouth?",
+    "category": "Objects",
+    "difficulty": "Medium",
+    "xp_reward": 15,
+    "answers": ["瓶", "びん", "bottle"]
+  },
+  {
+    "text_kanji": "私はたくさんの歯を持っていますが、何も食べられません。私は何？",
+    "text_hiragana": "わたしはたくさんのハをもっていますが、なにもたべられません。わたしはなに？",
+    "english_text": "I have many teeth but cannot eat. What am I?",
+    "category": "Objects",
+    "difficulty": "Easy",
+    "xp_reward": 10,
+    "answers": ["櫛", "くし", "comb"]
+  },
+  {
+    "text_kanji": "目があるけれど、見ることができないものは何ですか？",
+    "text_hiragana": "めがあるけれど、みることができないもの nanndesuka?",
+    "english_text": "What has eyes but cannot see?",
+    "category": "Objects",
+    "difficulty": "Easy",
+    "xp_reward": 10,
+    "answers": ["針", "はり", "needle"]
+  },
+  {
+    "text_kanji": "いつも走っているのに、決して動かないものは何ですか？",
+    "text_hiragana": "いつもはしっているのに、けっしてうごかないもの nanndesuka?",
+    "english_text": "What is always running but never moves?",
+    "category": "Nature",
+    "difficulty": "Medium",
+    "xp_reward": 15,
+    "answers": ["川", "かわ", "river"]
+  },
+  {
+    "text_kanji": "顔は一つ、手は二つ、足は四つ。私は何？",
+    "text_hiragana": "かおはひとつ、てはふたつ、あしはよっつ。わたしはなに？",
+    "english_text": "I have one face, two hands, and four legs. What am I?",
+    "category": "Objects",
+    "difficulty": "Medium",
+    "xp_reward": 15,
+    "answers": ["時計", "とけい", "clock"]
+  }
+]
