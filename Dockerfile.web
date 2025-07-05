@@ -59,6 +59,7 @@ RUN chmod -R 775 /app/app/static
 # Copy the rest of the Flask application code (app/ directory, logger.py)
 # Make sure your local 'app' directory and 'logger.py' are in the root of your project context
 COPY app /app/app
+COPY print_db_data.py /app/print_db_data.py
 
 # Expose port 8012, where Gunicorn will listen
 EXPOSE 8012
