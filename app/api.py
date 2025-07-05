@@ -53,6 +53,7 @@ user_model = api.model('User', {
     'email': fields.String(description='The user email address'),
     'xp': fields.Integer(description='User experience points'),
     'level': fields.Integer(description='User level'),
+    'role': fields.String(description='User role (e.g., "user", "admin")'),
     'created_at': fields.DateTime(dt_format='iso8601', readOnly=True),
     'updated_at': fields.DateTime(dt_format='iso8601', readOnly=True)
 })
@@ -415,9 +416,11 @@ class AddRiddle(Resource):
         db.session.add(new_riddle)
         db.session.flush()
 
-        for i, ans_text in enumerate(answers_data):
-            new_answer = Answer(riddle_id=new_riddle.id, answer_text=ans_text, is_correct=(i == 0))
+        # FIX STARTS HERE
+        for ans_text in answers_data: # Iterate directly over answers_data
+            new_answer = Answer(riddle_id=new_riddle.id, answer_text=ans_text, is_correct=True) # Always set to True
             db.session.add(new_answer)
+        # FIX ENDS HERE
 
         try:
             db.session.commit()

@@ -90,7 +90,7 @@ def seed_database():
         if not User.query.filter_by(username='admin').first():
             print("Creating default admin user...")
             hashed_password = generate_password_hash('admin_password', method='pbkdf2:sha256')
-            admin_user = User(username='admin', email='admin@example.com', password_hash=hashed_password)
+            admin_user = User(username='admin', email='admin@example.com', password_hash=hashed_password, role='admin')
             db.session.add(admin_user)
             db.session.commit()
             print("Default admin user created: username='admin', password='admin_password'")

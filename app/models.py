@@ -25,6 +25,7 @@ class User(db.Model):
     email = Column(String(120), unique=True, nullable=True)
     xp = Column(Integer, default=0, nullable=False)
     level = Column(Integer, default=1, nullable=False)
+    role = Column(String(50), default='user', nullable=False) # 'user', 'admin', etc.
     created_at = Column(DateTime(timezone=True), default=now_utc)
     updated_at = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
 
