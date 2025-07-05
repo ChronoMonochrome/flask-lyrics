@@ -368,7 +368,8 @@ class RiddleMarkCorrect(Resource):
 # Namespace for Admin operations
 admin_ns = api.namespace('admin', description='Admin operations')
 
-# Request Parser for adding a riddle
+# Request Parser for adding/updating a riddle
+# Reusing riddle_add_parser for update, but it's okay as PUT will target specific ID
 riddle_add_parser = reqparse.RequestParser()
 riddle_add_parser.add_argument('text_kanji', type=str, required=True, help='Riddle text with kanji cannot be blank!')
 riddle_add_parser.add_argument('text_hiragana', type=str, required=True, help='Riddle text with hiragana cannot be blank!')
@@ -378,6 +379,119 @@ riddle_add_parser.add_argument('difficulty', type=str, default="Easy", help='Dif
 riddle_add_parser.add_argument('xp_reward', type=int, default=10, help='XP reward for solving this riddle (default 10)')
 riddle_add_parser.add_argument('answers', type=list, location='json', required=True, help='List of accepted answers for the riddle (e.g., ["くだもの", "果物"])')
 
+
+@admin_ns.route('/riddles') # A general endpoint for getting all riddles for admin view
+class AdminRiddleList(Resource):
+    @api.doc(security='Bearer')
+    @jwt_required()
+    @api.response(200, 'Success', [riddle_model])
+    @api.response(403, 'Forbidden - Admin access required')
+    def get(self):
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user or user.role != "admin": # Use role check
+            api.abort(403, "Admin access required")
+
+        riddles = Riddle.query.options(joinedload(Riddle.answers)).all()
+        marshaled_riddles = []
+        for riddle in riddles:
+            riddle_data = api.marshal(riddle, riddle_model)
+            # For admin, we likely want all correct answers
+            riddle_data['correct_answers'] = [ans.answer_text for ans in riddle.answers if ans.is_correct]
+            marshaled_riddles.append(riddle_data)
+        return marshaled_riddles
+
+
+@admin_ns.route('/riddles/<string:riddle_id>') # Specific endpoint for individual riddle operations
+class AdminRiddleResource(Resource):
+    @api.doc(security='Bearer')
+    @jwt_required()
+    @api.response(403, 'Forbidden - Admin access required')
+    @api.response(404, 'Riddle not found')
+    def authorize_admin(self):
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user or user.role != "admin":
+            api.abort(403, "Admin access required")
+        return user # Return user if authorized
+
+    @api.marshal_with(riddle_model)
+    def get(self, riddle_id):
+        """Get a single riddle with all its correct answers."""
+        self.authorize_admin()
+        riddle = Riddle.query.options(joinedload(Riddle.answers)).get(riddle_id)
+        if not riddle:
+            api.abort(404, "Riddle not found")
+        riddle_data = api.marshal(riddle, riddle_model)
+        riddle_data['correct_answers'] = [ans.answer_text for ans in riddle.answers if ans.is_correct]
+        return riddle_data
+
+
+    @api.expect(riddle_add_parser) # Reuse the add parser
+    @api.response(200, 'Riddle updated successfully', riddle_model)
+    def put(self, riddle_id):
+        """Update an existing riddle and its answers."""
+        self.authorize_admin()
+        riddle = Riddle.query.get(riddle_id)
+        if not riddle:
+            api.abort(404, "Riddle not found")
+
+        data = riddle_add_parser.parse_args()
+
+        # Update riddle fields
+        riddle.text_kanji = data['text_kanji']
+        riddle.text_hiragana = data['text_hiragana']
+        riddle.english_text = data['english_text']
+        riddle.category = data['category']
+        riddle.difficulty = data['difficulty']
+        riddle.xp_reward = data['xp_reward']
+        riddle.updated_at = now_utc() # Update timestamp
+
+        # Update answers: Simplest approach is to delete old ones and add new ones.
+        # This prevents issues with updating specific answer texts or is_correct flags.
+        Answer.query.filter_by(riddle_id=riddle.id).delete()
+        db.session.flush() # Commit deletions before adding new ones
+
+        if not data['answers']:
+            api.abort(400, 'At least one answer is required for the riddle.')
+
+        for ans_text in data['answers']:
+            new_answer = Answer(riddle_id=riddle.id, answer_text=ans_text, is_correct=True)
+            db.session.add(new_answer)
+
+        try:
+            db.session.commit()
+            marshaled_riddle = api.marshal(riddle, riddle_model)
+            marshaled_riddle['correct_answers'] = [ans.answer_text for ans in riddle.answers if ans.is_correct]
+            return {'message': 'Riddle updated successfully', 'riddle': marshaled_riddle}, 200
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error updating riddle {riddle_id}: {e}")
+            api.abort(500, "Internal Server Error during riddle update")
+
+    @api.response(204, 'Riddle deleted successfully')
+    def delete(self, riddle_id):
+        """Delete a riddle and all its associated answers and user progress."""
+        self.authorize_admin()
+        riddle = Riddle.query.get(riddle_id)
+        if not riddle:
+            api.abort(404, "Riddle not found")
+
+        try:
+            # Delete associated answers first (due to foreign key constraints if not CASCADE)
+            Answer.query.filter_by(riddle_id=riddle.id).delete()
+            # Delete associated user progress
+            UserProgress.query.filter_by(riddle_id=riddle.id).delete()
+            # Then delete the riddle itself
+            db.session.delete(riddle)
+            db.session.commit()
+            return {'message': 'Riddle deleted successfully'}, 204 # 204 No Content for successful deletion
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error deleting riddle {riddle_id}: {e}")
+            api.abort(500, "Internal Server Error during riddle deletion")
+
+# This endpoint remains for adding new riddles
 @admin_ns.route('/add_riddle')
 class AddRiddle(Resource):
     @api.doc(security='Bearer')
@@ -389,9 +503,8 @@ class AddRiddle(Resource):
     def post(self):
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
-        if not user or user.username != "admin": # Replace with actual admin role check
-             api.abort(403, "Admin access required")
-
+        if not user or user.role != "admin": # Use role check
+            api.abort(403, "Admin access required")
 
         data = riddle_add_parser.parse_args()
         text_kanji = data['text_kanji']
@@ -416,11 +529,9 @@ class AddRiddle(Resource):
         db.session.add(new_riddle)
         db.session.flush()
 
-        # FIX STARTS HERE
-        for ans_text in answers_data: # Iterate directly over answers_data
-            new_answer = Answer(riddle_id=new_riddle.id, answer_text=ans_text, is_correct=True) # Always set to True
+        for ans_text in answers_data:
+            new_answer = Answer(riddle_id=new_riddle.id, answer_text=ans_text, is_correct=True)
             db.session.add(new_answer)
-        # FIX ENDS HERE
 
         try:
             db.session.commit()

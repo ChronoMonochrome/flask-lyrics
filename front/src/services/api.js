@@ -11,6 +11,7 @@ export const setNavigateFunction = (navigate) => {
 // KEEP THIS AS HTTPS - It's correct for the base URL
 const API_BASE_URL = 'https://japaneseriddle.ignorelist.com/api';
 
+// Use 'api' as the configured instance for all calls
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -112,9 +113,26 @@ export const getUserProfile = async (axiosConfig = {}) => {
     return response.data;
 };
 
-export const addRiddle = async (riddleData) => {
-    const response = await api.post('/admin/add_riddle', riddleData);
-    return response.data;
+// Admin API calls - FIX STARTS HERE
+// Function to add a new riddle
+export const addRiddle = (riddleData) => {
+    return api.post('/admin/add_riddle', riddleData); // <-- Changed from axios to api
 };
+
+// NEW: Function to get all riddles for admin panel
+export const getAllRiddles = () => {
+    return api.get('/admin/riddles'); // <-- Changed from axios to api
+};
+
+// NEW: Function to update an existing riddle
+export const updateRiddle = (riddleId, riddleData) => {
+    return api.put(`/admin/riddles/${riddleId}`, riddleData); // <-- Changed from axios to api
+};
+
+// NEW: Function to delete a riddle
+export const deleteRiddle = (riddleId) => {
+    return api.delete(`/admin/riddles/${riddleId}`); // <-- Changed from axios to api
+};
+// FIX ENDS HERE
 
 export default api;
