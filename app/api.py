@@ -1,13 +1,14 @@
 import traceback
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, current_app, request # Removed redirect, url_for as they're not used in error handlers
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.exceptions import HTTPException, InternalServerError, Unauthorized, BadRequest, Forbidden, NotFound
 from app.models import db, User, Riddle, Answer, UserProgress, calculate_level, now_utc
-from sqlalchemy.orm import joinedload # Import joinedload for eager loading
+from sqlalchemy.orm import joinedload
 from datetime import datetime
 import json
 from decimal import Decimal
 from werkzeug.security import generate_password_hash, check_password_hash
+import random # <--- Import random for the random riddle route
 
 from flask_jwt_extended import (
     create_access_token,
@@ -16,10 +17,13 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
+# Import the actual jwt exceptions from PyJWT
+import jwt.exceptions as jwt_py_exceptions
+
 from flask_jwt_extended.exceptions import (
     NoAuthorizationError,
     InvalidHeaderError,
-    JWTDecodeError,
+    JWTDecodeError, # Keeping this for broader JWT errors
     WrongTokenError,
     RevokedTokenError,
     FreshTokenRequired,
@@ -33,7 +37,7 @@ api_bp = Blueprint('api', __name__)
 
 api = Api(api_bp, version='1.0', title='Japanese Riddles API',
           description='API for Japanese Riddles application', doc='/doc',
-          catch_all_404s=True)
+          catch_all_404s=True) # catch_all_404s=True is good for API-specific 404s
 
 # Load environment variables for JWT_SECRET_KEY
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -62,7 +66,7 @@ answer_model = api.model('Answer', {
     'created_at': fields.DateTime(dt_format='iso8601', readOnly=True)
 })
 
-# Model for Riddle (for API serialization)
+# Model for Riddle (for API serialization) - Updated to remove correct_answers from default marshal
 riddle_model = api.model('Riddle', {
     'id': fields.String(readOnly=True, description='The riddle unique identifier'),
     'text_kanji': fields.String(required=True, description='The riddle text with kanji'),
@@ -73,8 +77,8 @@ riddle_model = api.model('Riddle', {
     'xp_reward': fields.Integer(description='XP awarded for solving this riddle'),
     'created_at': fields.DateTime(dt_format='iso8601', readOnly=True),
     'updated_at': fields.DateTime(dt_format='iso8601', readOnly=True),
-    # Field to include correct answer texts for display (e.g., for "Show Answer")
-    'correct_answers': fields.List(fields.String, description='List of correct answer texts for the riddle')
+    # 'correct_answers': fields.List(fields.String, description='List of correct answer texts for the riddle')
+    # ^^^ REMOVE THIS FROM THE MODEL if you're manually adding it to output
 })
 
 # Model for User Progress (for API serialization)
@@ -113,11 +117,11 @@ class UserRegister(Resource):
         email = data.get('email')
 
         if User.query.filter_by(username=username).first():
-            return {'message': 'User with that username already exists'}, 409
+            api.abort(409, 'User with that username already exists')
         if email and User.query.filter_by(email=email).first():
-            return {'message': 'User with that email already exists'}, 409
+            api.abort(409, 'User with that email already exists')
 
-        hashed_password = generate_password_hash(password, method='scrypt') # Use scrypt for stronger hashing
+        hashed_password = generate_password_hash(password, method='scrypt')
         new_user = User(username=username, password_hash=hashed_password, email=email)
         db.session.add(new_user)
         try:
@@ -140,7 +144,7 @@ class UserLogin(Resource):
 
         user = User.query.filter_by(username=username).first()
         if not user or not check_password_hash(user.password_hash, password):
-            return {'message': 'Invalid username or password'}, 401
+            api.abort(401, 'Invalid username or password')
 
         access_token = create_access_token(identity=user.id)
         return {'access_token': access_token, 'user': api.marshal(user, user_model)}, 200
@@ -167,20 +171,51 @@ class RiddleList(Resource):
     @api.doc()
     @api.response(200, 'Success', [riddle_model])
     def get(self):
-        # Fetch all riddles and eagerly load their associated answers
         riddles = Riddle.query.options(joinedload(Riddle.answers)).all()
 
-        # Custom marshalling to include only correct answer texts
         marshaled_riddles = []
         for riddle in riddles:
             riddle_data = api.marshal(riddle, riddle_model)
-            # Filter for correct answers and extract just the answer_text
+            # Only include correct_answers if it's explicitly needed and controlled (e.g., for admin)
+            # For a general /riddles list, you probably don't want to expose answers.
+            # If you need them for client-side comparison after an answer attempt,
+            # consider a separate endpoint or only include it on submission.
+            # However, based on your original code, you are including them.
             riddle_data['correct_answers'] = [
                 ans.answer_text for ans in riddle.answers if ans.is_correct
             ]
             marshaled_riddles.append(riddle_data)
 
         return marshaled_riddles
+
+@riddles_ns.route('/random')
+class RandomRiddle(Resource):
+    @api.doc('get_random_riddle')
+    @api.marshal_with(riddle_model)
+    # @jwt_required(optional=True) # Add if you want to protect or track for logged-in users
+    def get(self):
+        """
+        Get a random riddle.
+        """
+        # Fetch all riddle IDs to select one randomly efficiently
+        all_riddle_ids = [r.id for r in Riddle.query.with_entities(Riddle.id).all()]
+
+        if not all_riddle_ids:
+            current_app.logger.warning("No riddles found in the database for random selection.")
+            api.abort(404, "No riddles available.") # This will trigger Flask-RestX's 404 handler
+
+        random_riddle_id = random.choice(all_riddle_ids)
+
+        random_riddle = Riddle.query.get(random_riddle_id)
+
+        if not random_riddle:
+            current_app.logger.error(f"Riddle with ID {random_riddle_id} chosen but not found. Database inconsistency?")
+            api.abort(404, "Riddle not found (internal error).")
+
+        # Marshal the riddle and add correct_answers for this specific endpoint if desired
+        riddle_data = api.marshal(random_riddle, riddle_model)
+        riddle_data['correct_answers'] = [ans.answer_text for ans in random_riddle.answers if ans.is_correct]
+        return riddle_data
 
 @riddles_ns.route('/<string:riddle_id>')
 class RiddleResource(Resource):
@@ -191,11 +226,9 @@ class RiddleResource(Resource):
         riddle = Riddle.query.get(riddle_id)
         if not riddle:
             api.abort(404, "Riddle not found")
-        # For a single riddle, also provide correct answers if needed for frontend logic
         riddle_data = api.marshal(riddle, riddle_model)
         riddle_data['correct_answers'] = [ans.answer_text for ans in riddle.answers if ans.is_correct]
         return riddle_data
-
 
 # Request Parser for Answer Submission
 answer_submit_parser = reqparse.RequestParser()
@@ -226,7 +259,6 @@ class RiddleAnswer(Resource):
         user_progress = UserProgress.query.filter_by(user_id=user.id, riddle_id=riddle.id).first()
 
         if user_progress and user_progress.solved:
-            # If already solved, return the correct answer from riddle.answers if available
             correct_canonical_answer = next((ans.answer_text for ans in riddle.answers if ans.is_correct), None)
             return {'message': 'Riddle already solved by this user.', 'solved': True, 'actual_answer': correct_canonical_answer}, 200
 
@@ -234,12 +266,8 @@ class RiddleAnswer(Resource):
         if not user_progress:
             user_progress = UserProgress(user_id=user.id, riddle_id=riddle.id)
             db.session.add(user_progress)
-            # IMPORTANT: For new objects, ensure defaults are applied before accessing/modifying
-            # Flushing the session will ensure default values are set.
-            db.session.flush() # This will assign the default 'attempts=0' from the model
+            db.session.flush() # Ensure defaults are applied here
 
-        # Ensure attempts is an integer, even if for some reason flush didn't work as expected
-        # This is a defensive programming step, though flush() should handle it.
         if user_progress.attempts is None:
             user_progress.attempts = 0 # Explicitly set to 0 if it's somehow None
 
@@ -249,19 +277,14 @@ class RiddleAnswer(Resource):
 
 
         # Check if the submitted answer is correct
-        correct_answers_objects = [ans for ans in riddle.answers if ans.is_correct] # Get correct Answer objects
+        correct_answers_objects = [ans for ans in riddle.answers if ans.is_correct]
         correct_answers_texts = [ans.answer_text.lower() for ans in correct_answers_objects]
         is_correct = submitted_answer_text in correct_answers_texts
 
         actual_correct_answer_text = None
         if is_correct:
-            # If correct, provide one of the canonical answers.
-            # You might want to pick the most common one, or the one that matches the input.
-            # For simplicity, just pick the first correct canonical answer.
             actual_correct_answer_text = correct_answers_objects[0].answer_text if correct_answers_objects else None
         else:
-            # If incorrect, actual_answer_text remains None. It's only revealed on correct submission
-            # or if the "show answer" button is clicked and the backend decides to reveal it.
             pass
 
 
@@ -270,10 +293,9 @@ class RiddleAnswer(Resource):
             user_progress.solved_at = now_utc()
             user_progress.manually_corrected = False # Reset if solved automatically
 
-            # Award XP and level up
             user.xp += riddle.xp_reward
             user.level = calculate_level(user.xp)
-            db.session.add(user) # Update user XP/level
+            db.session.add(user)
 
             db.session.commit()
             return {
@@ -282,11 +304,11 @@ class RiddleAnswer(Resource):
                 'xp_gained': riddle.xp_reward,
                 'new_xp': user.xp,
                 'new_level': user.level,
-                'actual_answer': actual_correct_answer_text # <-- Ensure this is passed
+                'actual_answer': actual_correct_answer_text
             }, 200
         else:
             db.session.commit()
-            return {'message': 'Incorrect answer. Try again!', 'solved': False, 'actual_answer': actual_correct_answer_text}, 200 # Still send if incorrect, useful for feedback
+            return {'message': 'Incorrect answer. Try again!', 'solved': False, 'actual_answer': actual_correct_answer_text}, 200
 
 @riddles_ns.route('/<string:riddle_id>/mark_correct')
 class RiddleMarkCorrect(Resource):
@@ -308,17 +330,15 @@ class RiddleMarkCorrect(Resource):
         user_progress = UserProgress.query.filter_by(user_id=user.id, riddle_id=riddle.id).first()
 
         if user_progress and user_progress.solved:
-            return {'message': 'Riddle already solved by this user (or manually corrected).'}, 409
+            api.abort(409, 'Riddle already solved by this user (or manually corrected).')
 
         if not user_progress:
             user_progress = UserProgress(user_id=user.id, riddle_id=riddle.id)
             db.session.add(user_progress)
-            db.session.flush() # Ensure defaults are applied for new object
+            db.session.flush()
 
-        # Only award XP if the riddle was not previously solved.
         xp_awarded_now = 0
-        if not user_progress.solved: # This check is redundant after the above 'if user_progress and user_progress.solved:'
-                                    # but harmless. The XP awarding logic should only occur if it truly wasn't solved.
+        if not user_progress.solved:
             user.xp += riddle.xp_reward
             user.level = calculate_level(user.xp)
             db.session.add(user)
@@ -327,14 +347,12 @@ class RiddleMarkCorrect(Resource):
         user_progress.solved = True
         user_progress.solved_at = now_utc()
         user_progress.manually_corrected = True
-        # If user submitted something before, keep it, otherwise set to a default marker
         if not user_progress.last_attempt_answer:
             user_progress.last_attempt_answer = "[Manually Corrected]"
-        
-        # Ensure attempts is an integer before incrementing for 'mark_correct'
+           
         if user_progress.attempts is None:
             user_progress.attempts = 0
-        user_progress.attempts += 1 # Increment attempts for manual correction too
+        user_progress.attempts += 1
         user_progress.last_attempt_at = now_utc()
 
         try:
@@ -368,7 +386,6 @@ class AddRiddle(Resource):
     @api.response(400, 'Bad Request')
     @api.response(403, 'Forbidden - Admin access required')
     def post(self):
-        # In a real app, you'd check user roles here (e.g., if get_jwt_identity() is an admin user)
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
         if not user or user.username != "admin": # Replace with actual admin role check
@@ -396,16 +413,14 @@ class AddRiddle(Resource):
             xp_reward=xp_reward
         )
         db.session.add(new_riddle)
-        db.session.flush() # To get the ID for related answers
+        db.session.flush()
 
         for i, ans_text in enumerate(answers_data):
-            # Mark the first answer as correct (or handle multiple correct answers if needed)
             new_answer = Answer(riddle_id=new_riddle.id, answer_text=ans_text, is_correct=(i == 0))
             db.session.add(new_answer)
 
         try:
             db.session.commit()
-            # Marshal the new_riddle, ensuring correct_answers is populated for the response
             marshaled_new_riddle = api.marshal(new_riddle, riddle_model)
             marshaled_new_riddle['correct_answers'] = [
                 ans.answer_text for ans in new_riddle.answers if ans.is_correct
@@ -417,45 +432,71 @@ class AddRiddle(Resource):
             api.abort(500, "Internal Server Error during riddle addition")
 
 # Error Handlers for Flask-RESTx
+
+# Specifically catch ExpiredSignatureError from PyJWT and similar JWT errors
+@api.errorhandler(jwt_py_exceptions.ExpiredSignatureError)
+@api.errorhandler(jwt_py_exceptions.InvalidTokenError) # Catch general invalid token errors from PyJWT
+def handle_pyjwt_exceptions(error):
+    current_app.logger.warning(f"PyJWT Error: {type(error).__name__} - {error.args[0]}")
+    response_data = {
+        "message": "Authentication required. Your session has expired or is invalid.",
+        "status": 401,
+        "error_type": type(error).__name__,
+        "redirect_to_home": True # Signal to the frontend to redirect
+    }
+    # Return a dictionary and status code; Flask-RestX will jsonify it.
+    return response_data, 401
+
+
 @api.errorhandler(BadRequest)
 @api.errorhandler(NotFound)
 @api.errorhandler(Unauthorized)
 @api.errorhandler(Forbidden)
 def handle_restx_http_exception(error):
-    # This handler ensures Flask-RESTx HTTP exceptions are caught and formatted
     current_app.logger.error(f"RESTX HTTP Error: {error.code} - {error.description}")
-    return jsonify({
+    # Return a dictionary and status code; Flask-RestX will jsonify it.
+    return {
         'message': error.description,
         'status': error.code,
         'error_type': error.__class__.__name__
-    }), error.code
+    }, error.code
 
 @api.errorhandler(NoAuthorizationError)
 @api.errorhandler(InvalidHeaderError)
-@api.errorhandler(JWTDecodeError)
+@api.errorhandler(JWTDecodeError) # Keeping this to catch other general decode errors
 @api.errorhandler(WrongTokenError)
 @api.errorhandler(RevokedTokenError)
 @api.errorhandler(FreshTokenRequired)
 @api.errorhandler(UserClaimsVerificationError)
-def handle_jwt_exceptions(error):
-    current_app.logger.error(f"JWT Error: {type(error).__name__} - {error.args[0]}")
-    return jsonify({
+def handle_flask_jwt_extended_exceptions(error): # Renamed for clarity
+    current_app.logger.error(f"Flask-JWT-Extended Error: {type(error).__name__} - {error.args[0]}")
+    # If a specific JWT error implies session invalidation, signal redirect
+    redirect_needed = isinstance(error, (RevokedTokenError, NoAuthorizationError, InvalidHeaderError, WrongTokenError))
+    # Return a dictionary and status code; Flask-RestX will jsonify it.
+    return {
         "message": str(error),
         "status": 401,
-        "error_type": type(error).__name__
-    }), 401
+        "error_type": type(error).__name__,
+        "redirect_to_home": redirect_needed # Signal to the frontend
+    }, 401
 
 @api.errorhandler(Exception)
 def handle_api_exception(e):
-    # Fallback for any other unhandled exceptions within API namespace
+    # If the exception is an HTTPException (like those from api.abort),
+    # let the more specific HTTP error handlers (like handle_restx_http_exception)
+    # or Flask-RestX's default for HTTPExceptions take over.
+    # CRITICAL FIX: DO NOT return jsonify directly here for HTTPExceptions.
+    # Flask-RestX's internal `error_router` expects the exception object itself
+    # or a tuple (response_data, status_code) where response_data is a dict.
+    # If you return a `Response` object here, it disrupts the flow.
     if isinstance(e, HTTPException):
-        # Let Flask-RESTx's default HTTPException handler take over if it hasn't already.
-        # This should ideally not be reached if the above HTTP error handler is working.
-        return jsonify({
-            'message': e.description,
-            'status': e.code,
-            'error_type': e.__class__.__name__
-        }), e.code
+        # Allow Flask-RESTx to handle its own HTTPExceptions
+        # Flask-RestX will catch this and pass it to its specific error handlers
+        # or render its default error page/JSON.
+        # This line effectively stops the current handler from processing it
+        # and allows the exception to propagate to Flask-RestX's error_router.
+        current_app.logger.debug(f"API Unhandled Exception: Caught HTTPException {type(e).__name__} for general handler, letting specific handler or default take over.")
+        raise e # Re-raise the exception for Flask-RESTX's internal handling
 
     current_app.logger.error(f"API Unhandled Exception: {e}\n{traceback.format_exc()}")
     is_debug_mode = current_app.debug
@@ -465,7 +506,8 @@ def handle_api_exception(e):
         'error_type': type(e).__name__,
         'details': traceback.format_exc() if is_debug_mode else 'Please contact support.'
     }
-    return jsonify(response), 500
+    # Return a dictionary and status code; Flask-RestX will jsonify it.
+    return response, 500
 
 # Register namespaces with the API
 api.add_namespace(auth_ns)

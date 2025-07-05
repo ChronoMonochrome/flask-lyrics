@@ -1,6 +1,13 @@
 // front/src/services/api.js
 import axios from 'axios';
 
+// We'll store the navigate function here
+let navigateRef;
+
+export const setNavigateFunction = (navigate) => {
+    navigateRef = navigate;
+};
+
 // KEEP THIS AS HTTPS - It's correct for the base URL
 const API_BASE_URL = 'https://japaneseriddle.ignorelist.com/api';
 
@@ -23,14 +30,31 @@ api.interceptors.request.use(config => {
 });
 
 // Response interceptor to handle token expiration/invalidity
-api.interceptors.response.use(response => response, error => {
-    if (error.response && error.response.status === 401) {
-        console.warn('Unauthorized access - token might be expired or invalid. Clearing token.');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user_data');
-        localStorage.removeItem('guest_progress');
-        // Dispatch a custom event for AuthContext to listen to
-        window.dispatchEvent(new CustomEvent('tokenExpired'));
+api.interceptors.response.use(response => response, async error => { // Made async to await data
+    const originalRequest = error.config;
+
+    // Check if the error is due to an expired/invalid token (401 status)
+    // AND it's not a retry after a refresh attempt (to prevent infinite loops)
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        // Check for the specific backend signal for redirection
+        const errorData = error.response.data;
+        if (errorData && errorData.redirect_to_home) {
+            console.warn('Unauthorized access - token might be expired or invalid. Redirecting to home.');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('guest_progress');
+
+            // Use the stored navigate function to redirect
+            if (navigateRef) {
+                navigateRef('/'); // Redirect to the home page
+            } else {
+                // Fallback for cases where navigateRef isn't set yet (unlikely in AuthProvider useEffect)
+                window.location.href = '/';
+            }
+
+            // Reject the promise to stop the original request from proceeding
+            return Promise.reject(new Error(errorData.message || 'Session expired. Please log in again.'));
+        }
     }
     return Promise.reject(error);
 });
@@ -47,12 +71,10 @@ export const registerUser = async (username, password, email) => {
     return response.data;
 };
 
-// *** THIS IS THE CRITICAL CHANGE FOR getRiddles ***
 export const getRiddles = async (category = null, difficulty = null, axiosConfig = {}) => {
     let url = '/riddles';
     const params = new URLSearchParams();
 
-    // Ensure category and difficulty are strings before appending to URL params
     if (category && typeof category === 'string') {
         params.append('category', category);
     }
@@ -64,12 +86,11 @@ export const getRiddles = async (category = null, difficulty = null, axiosConfig
         url += `?${params.toString()}`;
     }
 
-    // Pass the axiosConfig object (which includes the signal) to api.get
     const response = await api.get(url, axiosConfig);
     return response.data;
 };
 
-export const getRandomRiddle = async (axiosConfig = {}) => { // Also add config here for consistency
+export const getRandomRiddle = async (axiosConfig = {}) => {
     const response = await api.get('/riddles/random', axiosConfig);
     return response.data;
 };
@@ -86,7 +107,7 @@ export const markRiddleCorrect = async (riddleId) => {
     return response.data;
 }
 
-export const getUserProfile = async (axiosConfig = {}) => { // Add config here too
+export const getUserProfile = async (axiosConfig = {}) => {
     const response = await api.get('/auth/user_profile', axiosConfig);
     return response.data;
 };

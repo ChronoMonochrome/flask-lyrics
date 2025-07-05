@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv # Import load_dotenv
 from flask_cors import CORS # Import CORS (assuming you need it)
 from flask_jwt_extended import JWTManager # Import JWTManager
+from datetime import timedelta
 from .models import db
 from .api import api_bp
 
@@ -35,6 +36,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # IMPORTANT: Use a strong, random, and secret key in your .env file for production!
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'SUPER_SECRET_DEV_KEY_CHANGE_ME_IN_PROD')
 app.config['JWT_TOKEN_LOCATION'] = ['headers'] # Common choice for APIs
+# Set access token expiration to 7 days
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(weeks=1)
 
 # Initialize extensions
 db.init_app(app)
