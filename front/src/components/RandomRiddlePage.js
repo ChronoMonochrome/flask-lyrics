@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react'; // Import useRef
 import { getRandomRiddle, submitAnswer, markRiddleCorrect, getRiddleAnswer } from '../services/api';
 import FuriganaText from './FuriganaText';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,64 +13,82 @@ const RandomRiddlePage = () => {
     const [showHiragana, setShowHiragana] = useState(false);
     const [showEnglishTranslation, setShowEnglishTranslation] = useState(false);
     const [showForcedAnswer, setShowForcedAnswer] = useState(false);
-    const [revealedCorrectAnswer, setRevealedCorrectAnswer] = useState(''); // NEW STATE
+    const [revealedCorrectAnswer, setRevealedCorrectAnswer] = useState('');
     const [notification, setNotification] = useState({ type: '', message: '' });
+    // NEW STATE: Track if the last submission was incorrect
+    const [submittedIncorrectAnswer, setSubmittedIncorrectAnswer] = useState(false);
     const { t } = useTranslation();
 
-    const showNotification = useCallback((type, msg) => {
+    // Use refs to store timeout IDs
+    const notificationTimerRef = useRef(null);
+    const nextRiddleTimerRef = useRef(null);
+
+    const showNotification = useCallback((type, msg, duration = 3000) => {
+        // Clear any existing notification timer
+        if (notificationTimerRef.current) {
+            clearTimeout(notificationTimerRef.current);
+        }
         setNotification({ type, message: msg });
-        const timer = setTimeout(() => {
+        notificationTimerRef.current = setTimeout(() => {
             setNotification({ type: '', message: '' });
-        }, 3000);
-        return () => clearTimeout(timer);
+            notificationTimerRef.current = null;
+        }, duration);
     }, []);
 
     const fetchNewRiddle = async () => {
+        // Clear any pending timers when fetching a new riddle
+        if (notificationTimerRef.current) clearTimeout(notificationTimerRef.current);
+        if (nextRiddleTimerRef.current) clearTimeout(nextRiddleTimerRef.current);
+
         setRiddle(null);
         setAnswerInput('');
         setMessage('');
         setSolvedLocally(false);
         setShowHiragana(false);
+        setSubmittedIncorrectAnswer(false); // RESET new state when fetching a new riddle
         setShowEnglishTranslation(false);
         setShowForcedAnswer(false);
-        setRevealedCorrectAnswer(''); // RESET REVEALED ANSWER
+        setRevealedCorrectAnswer('');
         setNotification({ type: '', message: '' });
 
         try {
             const response = await getRandomRiddle();
             setRiddle(response);
-            console.log("Fetched new riddle:", response); // Debugging line
+            console.log("Fetched new riddle:", response);
 
-            // If riddle is already solved by user, update states and set revealed answer
             if (currentUser && currentUser.solved_riddles_ids?.includes(response.id)) {
                 setSolvedLocally(true);
                 setMessage(t('already_solved_riddle'));
                 setShowHiragana(true);
                 setShowEnglishTranslation(true);
-                // Fetch the correct answer if the riddle is already solved
                 try {
                     const answers = await getRiddleAnswer(response.id);
-                    console.log("Answers for solved riddle:", answers); // Debugging line
+                    console.log("Answers for solved riddle:", answers);
                     if (answers && answers.length > 0) {
                         setRevealedCorrectAnswer(answers.join(' / '));
                     } else {
-                        console.warn("Answers array for solved riddle is empty or null/undefined."); // Debugging line
+                        console.warn("Answers array for solved riddle is empty or null/undefined.");
                         setRevealedCorrectAnswer(t('answer_not_available'));
                     }
                 } catch (ansError) {
-                    console.error("Failed to fetch correct answer for already solved riddle:", ansError); // Debugging line
+                    console.error("Failed to fetch correct answer for already solved riddle:", ansError);
                     setRevealedCorrectAnswer(t('answer_not_available'));
                 }
             }
         } catch (error) {
-            console.error("Error in fetchNewRiddle:", error); // Debugging line
+            console.error("Error in fetchNewRiddle:", error);
             setMessage(t('error_fetching_riddles', { message: error.response?.data?.message || error.message }));
         }
     };
 
     useEffect(() => {
         fetchNewRiddle();
-    }, [currentUser, t]); // Added t to dependency array as it's used in fetchNewRiddle
+        // Cleanup function for useEffect
+        return () => {
+            if (notificationTimerRef.current) clearTimeout(notificationTimerRef.current);
+            if (nextRiddleTimerRef.current) clearTimeout(nextRiddleTimerRef.current);
+        };
+    }, [currentUser, t]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -78,28 +96,30 @@ const RandomRiddlePage = () => {
         try {
             const response = await submitAnswer(riddle.id, answerInput);
             setMessage(response.message);
-            console.log("Submit answer response:", response); // Debugging line
+            console.log("Submit answer response:", response);
 
             if (response.solved) {
                 setSolvedLocally(true);
+                setSubmittedIncorrectAnswer(false); // When correctly solved, hide the "I was correct!" button
                 setShowHiragana(true);
                 setShowEnglishTranslation(true);
+                
                 // Use the actual_answer from the submit response if available, otherwise fetch
                 if (response.actual_answer) {
                     setRevealedCorrectAnswer(response.actual_answer);
-                    console.log("Answer from submit response:", response.actual_answer); // Debugging line
+                    console.log("Answer from submit response:", response.actual_answer);
                 } else {
                     try {
                         const answers = await getRiddleAnswer(riddle.id);
-                        console.log("Answers after submission (fetched):", answers); // Debugging line
+                        console.log("Answers after submission (fetched):", answers);
                         if (answers && answers.length > 0) {
                             setRevealedCorrectAnswer(answers.join(' / '));
                         } else {
-                            console.warn("Answers array after submission is empty or null/undefined."); // Debugging line
+                            console.warn("Answers array after submission is empty or null/undefined.");
                             setRevealedCorrectAnswer(t('answer_not_available'));
                         }
                     } catch (ansError) {
-                        console.error("Failed to fetch correct answer after submission:", ansError); // Debugging line
+                        console.error("Failed to fetch correct answer after submission:", ansError);
                         setRevealedCorrectAnswer(t('answer_not_available'));
                     }
                 }
@@ -113,24 +133,34 @@ const RandomRiddlePage = () => {
                         solved_riddles_ids: [...new Set([...(prevUser.solved_riddles_ids || []), riddle.id])]
                     }));
 
+                    let notificationMessage = '';
                     if (response.new_level > prevLevel) {
-                        showNotification('success', t('alert_level_up', { newLevel: response.new_level }));
+                        notificationMessage = t('alert_level_up', { newLevel: response.new_level });
                     } else if (response.xp_gained > 0) {
-                        showNotification('success', t('alert_xp_gained', { xpGained: response.xp_gained }));
+                        notificationMessage = t('alert_xp_gained', { xpGained: response.xp_gained });
                     } else {
-                        showNotification('info', response.message);
+                        notificationMessage = response.message;
                     }
-                } else {
+                    showNotification('success', notificationMessage);
+
+                } else { // Guest user success logic
                     const guestProgress = JSON.parse(localStorage.getItem('guest_progress') || '{}');
                     guestProgress[riddle.id] = { answered: true, correct: true, answer: answerInput, correctAnswer: response.actual_answer || revealedCorrectAnswer };
                     localStorage.setItem('guest_progress', JSON.stringify(guestProgress));
                     showNotification('success', response.message);
                 }
-            } else {
+
+                // Delay fetching next riddle to allow user to see notification
+                nextRiddleTimerRef.current = setTimeout(() => {
+                    fetchNewRiddle();
+                }, 2500); // Adjust delay as needed (e.g., 2500ms = 2.5 seconds)
+
+            } else { // Incorrect answer
+                setSubmittedIncorrectAnswer(true);
                 showNotification('error', response.message);
             }
         } catch (error) {
-            console.error("Error in handleSubmit:", error); // Debugging line
+            console.error("Error in handleSubmit:", error);
             showNotification('error', t('riddle_submission_failed'));
             setMessage(t('riddle_submission_failed'));
         }
@@ -142,24 +172,31 @@ const RandomRiddlePage = () => {
             const response = await markRiddleCorrect(riddle.id);
             setMessage(response.message);
             setSolvedLocally(true);
+            setSubmittedIncorrectAnswer(false); // Hide the "I was correct!" button after it's been pressed
             setShowHiragana(true);
             setShowEnglishTranslation(true);
-            console.log("Mark correct response:", response); // Debugging line
+            console.log("Mark correct response:", response);
 
             // After marking correct, fetch the correct answer using the new route
-            try {
-                const answers = await getRiddleAnswer(riddle.id);
-                console.log("Answers after marking correct:", answers); // Debugging line
-                if (answers && answers.length > 0) {
-                    setRevealedCorrectAnswer(answers.join(' / '));
-                } else {
-                    console.warn("Answers array after marking correct is empty or null/undefined."); // Debugging line
+            // Or use response.actual_answer if provided by backend (recommended)
+            if (response.actual_answer) {
+                setRevealedCorrectAnswer(response.actual_answer);
+            } else {
+                try {
+                    const answers = await getRiddleAnswer(riddle.id);
+                    console.log("Answers after marking correct:", answers);
+                    if (answers && answers.length > 0) {
+                        setRevealedCorrectAnswer(answers.join(' / '));
+                    } else {
+                        console.warn("Answers array after marking correct is empty or null/undefined.");
+                        setRevealedCorrectAnswer(t('answer_not_available'));
+                    }
+                } catch (ansError) {
+                    console.error("Failed to fetch correct answer after marking correct:", ansError);
                     setRevealedCorrectAnswer(t('answer_not_available'));
                 }
-            } catch (ansError) {
-                console.error("Failed to fetch correct answer after marking correct:", ansError); // Debugging line
-                setRevealedCorrectAnswer(t('answer_not_available'));
             }
+
 
             if (currentUser) {
                 const prevLevel = currentUser.level;
@@ -169,54 +206,74 @@ const RandomRiddlePage = () => {
                     level: response.new_level,
                     solved_riddles_ids: [...new Set([...(prevUser.solved_riddles_ids || []), riddle.id])]
                 }));
+                let notificationMessage = '';
                 if (response.new_level > prevLevel) {
-                    showNotification('success', t('alert_level_up', { newLevel: response.new_level }));
+                    notificationMessage = t('alert_level_up', { newLevel: response.new_level });
                 } else if (response.xp_gained > 0) {
-                    showNotification('success', t('alert_riddle_marked_correct', { xpGained: response.xp_gained }));
+                    notificationMessage = t('alert_riddle_marked_correct', { xpGained: response.xp_gained });
                 } else {
-                    showNotification('info', response.message);
+                    notificationMessage = response.message;
                 }
-            } else {
+                showNotification('success', notificationMessage);
+            } else { // Guest user mark correct logic - no XP is awarded on backend, only local state updates
                 const guestProgress = JSON.parse(localStorage.getItem('guest_progress') || '{}');
-                guestProgress[riddle.id] = { answered: true, correct: true, answer: revealedCorrectAnswer || '[N/A]' }; // Use revealedAnswer
+                guestProgress[riddle.id] = { answered: true, correct: true, answer: revealedCorrectAnswer || '[N/A]' };
                 localStorage.setItem('guest_progress', JSON.stringify(guestProgress));
                 showNotification('success', response.message);
             }
+
+            // Delay fetching next riddle after manually marking correct
+            nextRiddleTimerRef.current = setTimeout(() => {
+                fetchNewRiddle();
+            }, 2500); // Adjust delay as needed
         } catch (error) {
-            console.error("Error in handleMarkCorrect:", error); // Debugging line
+            console.error("Error in handleMarkCorrect:", error);
             showNotification('error', t('error_marking_correct', { message: error.response?.data?.message || error.message }));
             setMessage(t('error_marking_correct', { message: error.response?.data?.message || error.message }));
         }
     };
 
     const handleToggleShowAnswer = async () => {
-        setShowForcedAnswer(prev => !prev);
-        console.log("Showing answer toggle triggered. Current riddle:", riddle); // Debugging line
+        // We only want to set showForcedAnswer if riddle is NOT solved locally and user wants to reveal it.
+        // If it's already solved locally (meaning they got it right, or manually marked it),
+        // we keep showForcedAnswer as false, but still show the revealedCorrectAnswer.
+        if (!solvedLocally) {
+            setShowForcedAnswer(prev => !prev);
+        }
+        
+        console.log("Showing answer toggle triggered. Current riddle:", riddle);
 
-        if (!showForcedAnswer) { // If we are about to show the answer
+        // This condition is for fetching the answer if it's about to be shown AND not already revealed
+        if (!showForcedAnswer && !revealedCorrectAnswer) {
             setMessage(t('answer_shown_no_xp')); // Inform user about no XP
             try {
                 const answers = await getRiddleAnswer(riddle.id); // CALL THE NEW API HERE
-                console.log("Answers from handleToggleShowAnswer (fetched):", answers); // Debugging line
+                console.log("Answers from handleToggleShowAnswer (fetched):", answers);
                 if (answers && answers.length > 0) {
                     setRevealedCorrectAnswer(answers.join(' / '));
                 } else {
-                    console.warn("Answers array from handleToggleShowAnswer is empty or null/undefined."); // Debugging line
+                    console.warn("Answers array from handleToggleShowAnswer is empty or null/undefined.");
                     setRevealedCorrectAnswer(t('answer_not_available'));
                 }
             } catch (error) {
-                console.error("Failed to fetch answer in handleToggleShowAnswer:", error); // Debugging line
+                console.error("Failed to fetch answer in handleToggleShowAnswer:", error);
                 setRevealedCorrectAnswer(t('answer_not_available'));
             }
-        } else { // If we are about to hide the answer
+        } else if (showForcedAnswer) { // If we are about to hide the answer
             setMessage('');
-            setRevealedCorrectAnswer(''); // Clear revealed answer when hiding
+            // We should NOT clear revealedCorrectAnswer here. If the user got it wrong
+            // and then revealed it, the button should remain, and the answer too.
+            // setRevealedCorrectAnswer(''); // REMOVE THIS LINE
         }
     };
 
     if (!riddle) {
         return <div>{t('loading_riddles')}</div>;
     }
+
+    // Determine when to show the "I was correct! (Give me XP)" button
+    // Show if a user submitted an incorrect answer and the riddle isn't solved yet (either by guessing or marking correct)
+    const shouldShowMarkCorrectButton = submittedIncorrectAnswer && !solvedLocally;
 
     return (
         <div className="random-riddle-page">
@@ -242,13 +299,12 @@ const RandomRiddlePage = () => {
                     </p>
                 )}
 
-                {/* Display the revealed answer if forced or solved */}
-                {(showForcedAnswer || solvedLocally) && revealedCorrectAnswer && (
+                {/* Display the revealed answer if forced OR solvedLocally */}
+                {((showForcedAnswer && revealedCorrectAnswer) || (solvedLocally && revealedCorrectAnswer)) && (
                     <p className="correct-answer-display">
                         <strong>{t('correct_answer_label')}</strong> {revealedCorrectAnswer}
                     </p>
                 )}
-
 
                 <div className="button-group">
                     <button onClick={() => setShowHiragana(!showHiragana)}>
@@ -257,7 +313,8 @@ const RandomRiddlePage = () => {
                     <button onClick={() => setShowEnglishTranslation(!showEnglishTranslation)}>
                         {showEnglishTranslation ? t('hide_translation_button') : t('show_translation_button')}
                     </button>
-                    {/* Toggle button for showing/hiding the answer */}
+                    {/* The "show/hide answer" button should be disabled if already solved,
+                        but it might still be useful to toggle if they got it wrong. */}
                     <button onClick={handleToggleShowAnswer} disabled={solvedLocally}>
                         {showForcedAnswer ? t('hide_answer_button') : t('show_answer_button')}
                     </button>
@@ -277,7 +334,8 @@ const RandomRiddlePage = () => {
 
             {message && <p className="status-message">{message}</p>}
 
-            {!solvedLocally && !showForcedAnswer && (
+            {/* Display "I was correct!" button based on new logic */}
+            {shouldShowMarkCorrectButton && (
                 <button onClick={handleMarkCorrect} style={{ marginTop: '10px' }}>
                     {t('mark_correct_button')}
                 </button>
@@ -285,7 +343,12 @@ const RandomRiddlePage = () => {
 
             {riddle.xp_reward && <p>{t('xp_reward_label', { xp: riddle.xp_reward })}</p>}
 
-            <button onClick={fetchNewRiddle} style={{ marginTop: '20px' }}>{t('get_another_riddle_button')}</button>
+            {/* Only show 'Get Another Riddle' if NOT currently showing a success notification
+                This prevents the user from clicking away before seeing the success message and
+                the automatic transition starts. */}
+            {!notification.message || notification.type !== 'success' ? (
+                <button onClick={fetchNewRiddle} style={{ marginTop: '20px' }}>{t('get_another_riddle_button')}</button>
+            ) : null}
         </div>
     );
 };

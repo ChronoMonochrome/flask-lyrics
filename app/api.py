@@ -260,7 +260,7 @@ answer_submit_parser.add_argument('answer_text', type=str, required=True, help='
 @riddles_ns.route('/<string:riddle_id>/submit_answer')
 class RiddleAnswer(Resource):
     @api.doc(security='Bearer')
-    @jwt_required()
+    @jwt_required(optional=True)
     @api.expect(answer_submit_parser)
     @api.response(200, 'Answer processed')
     @api.response(404, 'Riddle not found')
