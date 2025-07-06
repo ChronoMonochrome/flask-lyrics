@@ -81,6 +81,9 @@ class UserProgress(db.Model):
     solved = Column(Boolean, default=False, nullable=False)
     attempts = Column(Integer, default=0, nullable=False)
     last_attempt_at = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
+    last_attempt_answer = db.Column(db.String(500))
+    solved_at = db.Column(db.DateTime)
+    manually_corrected = db.Column(db.Boolean, default=False)
 
     __table_args__ = (UniqueConstraint('user_id', 'riddle_id', name='_user_riddle_uc'),)
 

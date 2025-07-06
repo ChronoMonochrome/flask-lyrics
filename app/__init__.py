@@ -1,15 +1,16 @@
-# app/__init__.py
-
 from flask import Flask, request, jsonify, current_app, send_from_directory
 from werkzeug.exceptions import HTTPException, NotFound
 import traceback
 import os
-from dotenv import load_dotenv # Import load_dotenv
-from flask_cors import CORS # Import CORS (assuming you need it)
-from flask_jwt_extended import JWTManager # Import JWTManager
+from dotenv import load_dotenv
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from datetime import timedelta
-from .models import db
+from .models import db # Import db from .models
 from .api import api_bp
+
+# Import Migrate
+from flask_migrate import Migrate #
 
 # Determine the absolute path to your React build's *actual static content root*
 # This is where Create React App places its JS/CSS/image bundles.
@@ -35,35 +36,35 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # --- JWT Configuration ---
 # IMPORTANT: Use a strong, random, and secret key in your .env file for production!
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'SUPER_SECRET_DEV_KEY_CHANGE_ME_IN_PROD')
-app.config['JWT_TOKEN_LOCATION'] = ['headers'] # Common choice for APIs
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
 # Set access token expiration to 7 days
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(weeks=1)
 
 # Initialize extensions
 db.init_app(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], "allow_headers": "*"}})
-jwt = JWTManager(app) # Initialize JWTManager with the app instance directly
+jwt = JWTManager(app)
+
+# Initialize Flask-Migrate AFTER db.init_app(app)
+migrate = Migrate(app, db) #
 
 # Register blueprints
 app.register_blueprint(api_bp, url_prefix='/api')
 
 # --- JWT Callbacks (Optional but Recommended for customizing user loading) ---
-# Example: How to load a user from the database based on the JWT identity
-# You'll need to adjust this based on your User model and how you identify users.
-# from .models import User # Assuming your User model is in models.py
+from .models import User # Make sure to import your User model
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
 
-# @jwt.user_lookup_loader
-# def user_lookup_callback(_jwt_header, jwt_data):
-#    identity = jwt_data["sub"] # 'sub' (subject) is the default key for identity
-#    return User.query.filter_by(id=identity).one_or_none() # Example: Lookup user by ID
+@jwt.unauthorized_loader
+def unauthorized_response(callback):
+    return jsonify({"msg": "Missing or invalid token"}), 401
 
-# @jwt.unauthorized_loader
-# def unauthorized_response(callback):
-#     return jsonify({"msg": "Missing or invalid token"}), 401
-
-# @jwt.invalid_token_loader
-# def invalid_token_response(callback):
-#     return jsonify({"msg": "Signature verification failed"}), 401
+@jwt.invalid_token_loader
+def invalid_token_response(callback):
+    return jsonify({"msg": "Signature verification failed"}), 401
 
 
 # --- Static File Serving for React SPA ---
