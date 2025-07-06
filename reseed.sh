@@ -1,4 +1,4 @@
-source .env.local
+source .env
 python -c "
 from app import app, db
 with app.app_context():

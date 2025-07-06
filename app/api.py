@@ -13,7 +13,7 @@ import random
 from flask_jwt_extended import (
     create_access_token,
     jwt_required,
-    JWTManager,
+    JWTManager, # You already have this
     get_jwt_identity
 )
 
@@ -233,7 +233,7 @@ class RiddleResource(Resource):
 @riddles_ns.route('/<string:riddle_id>/answer', methods=['GET'])
 class RiddleAnswerOnly(Resource):
     @api.doc('get_riddle_answer_only', security='Bearer')
-    @jwt_required(optional=True) # Allow optional JWT for guest users
+    #@jwt_required(optional=True) # Allow optional JWT for guest users
     @api.response(200, 'Success', api.model('CorrectAnswers', {'correct_answers': fields.List(fields.String)}))
     @api.response(404, 'Riddle not found')
     def get(self, riddle_id):
@@ -260,78 +260,82 @@ answer_submit_parser.add_argument('answer_text', type=str, required=True, help='
 @riddles_ns.route('/<string:riddle_id>/submit_answer')
 class RiddleAnswer(Resource):
     @api.doc(security='Bearer')
-    @jwt_required(optional=True)
+    @jwt_required(optional=True) # Keep this as optional=True
     @api.expect(answer_submit_parser)
     @api.response(200, 'Answer processed')
     @api.response(404, 'Riddle not found')
     @api.response(400, 'Bad Request')
     def post(self, riddle_id):
-        current_user_id = get_jwt_identity()
-        user = User.query.get(current_user_id)
         riddle = Riddle.query.get(riddle_id)
-
-        if not user:
-            api.abort(404, "User not found")
         if not riddle:
-            api.abort(404, "Riddle not found")
+            api.abort(404, "Riddle not found") # Check for riddle first
 
         data = answer_submit_parser.parse_args()
-        submitted_answer_text = data['answer_text'].strip().lower() # Normalize answer
+        submitted_answer_text = data['answer_text'].strip().lower()
 
-        # Check if user has already solved this riddle
-        user_progress = UserProgress.query.filter_by(user_id=user.id, riddle_id=riddle.id).first()
-
-        if user_progress and user_progress.solved:
-            correct_canonical_answer = next((ans.answer_text for ans in riddle.answers if ans.is_correct), None)
-            return {'message': 'Riddle already solved by this user.', 'solved': True, 'actual_answer': correct_canonical_answer}, 200
-
-        # If user_progress does not exist, create it
-        if not user_progress:
-            user_progress = UserProgress(user_id=user.id, riddle_id=riddle.id)
-            db.session.add(user_progress)
-            db.session.flush() # Ensure defaults are applied here
-
-        if user_progress.attempts is None:
-            user_progress.attempts = 0 # Explicitly set to 0 if it's somehow None
-
-        user_progress.attempts += 1 # Increment attempts
-        user_progress.last_attempt_at = now_utc() # Update last attempt time
-        user_progress.last_attempt_answer = submitted_answer_text # Store the last submitted answer
-
-
-        # Check if the submitted answer is correct
+        # Determine if the submitted answer is correct against the riddle's answers
         correct_answers_objects = [ans for ans in riddle.answers if ans.is_correct]
         correct_answers_texts = [ans.answer_text.lower() for ans in correct_answers_objects]
         is_correct = submitted_answer_text in correct_answers_texts
+        actual_correct_answer_text = correct_answers_objects[0].answer_text if correct_answers_objects else None
 
-        actual_correct_answer_text = None
-        if is_correct:
-            actual_correct_answer_text = correct_answers_objects[0].answer_text if correct_answers_objects else None
-        else:
-            pass
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id) if current_user_id else None
 
+        if user: # Logged-in user logic (same as before)
+            user_progress = UserProgress.query.filter_by(user_id=user.id, riddle_id=riddle.id).first()
 
-        if is_correct:
-            user_progress.solved = True
-            user_progress.solved_at = now_utc()
-            user_progress.manually_corrected = False # Reset if solved automatically
+            if user_progress and user_progress.solved:
+                return {'message': 'Riddle already solved by this user.', 'solved': True, 'xp_gained': 0, 'new_xp': user.xp, 'new_level': user.level, 'actual_answer': actual_correct_answer_text}, 200
 
-            user.xp += riddle.xp_reward
-            user.level = calculate_level(user.xp)
-            db.session.add(user)
+            if not user_progress:
+                user_progress = UserProgress(user_id=user.id, riddle_id=riddle.id)
+                db.session.add(user_progress)
+                db.session.flush()
 
-            db.session.commit()
-            return {
-                'message': 'Correct answer! XP gained.',
-                'solved': True,
-                'xp_gained': riddle.xp_reward,
-                'new_xp': user.xp,
-                'new_level': user.level,
-                'actual_answer': actual_correct_answer_text
-            }, 200
-        else:
-            db.session.commit()
-            return {'message': 'Incorrect answer. Try again!', 'solved': False, 'actual_answer': actual_correct_answer_text}, 200
+            if user_progress.attempts is None:
+                user_progress.attempts = 0
+
+            user_progress.attempts += 1
+            user_progress.last_attempt_at = now_utc()
+            user_progress.last_attempt_answer = submitted_answer_text
+
+            if is_correct:
+                user_progress.solved = True
+                user_progress.solved_at = now_utc()
+                user_progress.manually_corrected = False
+
+                user.xp += riddle.xp_reward
+                user.level = calculate_level(user.xp)
+                db.session.add(user)
+                db.session.commit()
+
+                return {
+                    'message': 'Correct answer! XP gained.',
+                    'solved': True,
+                    'xp_gained': riddle.xp_reward,
+                    'new_xp': user.xp,
+                    'new_level': user.level,
+                    'actual_answer': actual_correct_answer_text
+                }, 200
+            else:
+                db.session.commit() # Commit changes to user_progress (attempts, last_attempt)
+                return {'message': 'Incorrect answer. Try again!', 'solved': False, 'actual_answer': actual_correct_answer_text}, 200
+        else: # Guest user logic (now reachable!)
+            # For guest users, we don't store progress on the backend.
+            # The client-side (React) will handle local storage.
+            # We just tell them if their answer was correct or not.
+            if is_correct:
+                return {
+                    'message': 'Correct answer!',
+                    'solved': True,
+                    'xp_gained': 0, # Guests don't get server-side XP
+                    'new_xp': 0, # Placeholder values for guests
+                    'new_level': 1, # Placeholder values for guests
+                    'actual_answer': actual_correct_answer_text
+                }, 200
+            else:
+                return {'message': 'Incorrect answer. Try again!', 'solved': False, 'actual_answer': actual_correct_answer_text}, 200
 
 @riddles_ns.route('/<string:riddle_id>/mark_correct')
 class RiddleMarkCorrect(Resource):
