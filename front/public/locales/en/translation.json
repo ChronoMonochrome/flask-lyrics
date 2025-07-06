@@ -92,5 +92,12 @@
   "admin_error_unexpected_data": "Error: Unexpected data format from server when fetching riddles.",
   "admin_error_action": "Error during {{action}} riddle: {{message}}",
   "admin_error_deleting_riddle": "Error deleting riddle: {{message}}",
-  "admin_select_riddle_to_delete": "Please select a riddle to delete."
+  "admin_select_riddle_to_delete": "Please select a riddle to delete.",
+  "english_translation_label": "Translation:",
+  "show_translation_button": "Show Translation",
+  "hide_translation_button": "Hide Translation",
+  "answer_shown_no_xp": "Answer shown. No XP awarded for this attempt.",
+  "error_marking_correct": "Error marking riddle correct: {{message}}",
+  "show_answer_button": "Show Answer",
+  "hide_answer_button": "Hide Answer"
 }

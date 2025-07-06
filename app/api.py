@@ -1,5 +1,5 @@
 import traceback
-from flask import Blueprint, jsonify, current_app, request # Removed redirect, url_for as they're not used in error handlers
+from flask import Blueprint, jsonify, current_app, request
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.exceptions import HTTPException, InternalServerError, Unauthorized, BadRequest, Forbidden, NotFound
 from app.models import db, User, Riddle, Answer, UserProgress, calculate_level, now_utc
@@ -8,7 +8,7 @@ from datetime import datetime
 import json
 from decimal import Decimal
 from werkzeug.security import generate_password_hash, check_password_hash
-import random # <--- Import random for the random riddle route
+import random
 
 from flask_jwt_extended import (
     create_access_token,
@@ -17,13 +17,12 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-# Import the actual jwt exceptions from PyJWT
 import jwt.exceptions as jwt_py_exceptions
 
 from flask_jwt_extended.exceptions import (
     NoAuthorizationError,
     InvalidHeaderError,
-    JWTDecodeError, # Keeping this for broader JWT errors
+    JWTDecodeError,
     WrongTokenError,
     RevokedTokenError,
     FreshTokenRequired,
@@ -37,9 +36,8 @@ api_bp = Blueprint('api', __name__)
 
 api = Api(api_bp, version='1.0', title='Japanese Riddles API',
           description='API for Japanese Riddles application', doc='/doc',
-          catch_all_404s=True) # catch_all_404s=True is good for API-specific 404s
+          catch_all_404s=True)
 
-# Load environment variables for JWT_SECRET_KEY
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.path.exists(os.path.join(BASE_DIR, '.env.local')):
     load_dotenv(os.path.join(BASE_DIR, '.env.local'))
@@ -231,6 +229,30 @@ class RiddleResource(Resource):
         riddle_data['correct_answers'] = [ans.answer_text for ans in riddle.answers if ans.is_correct]
         return riddle_data
 
+# NEW ENDPOINT: To explicitly get correct answers for a specific riddle
+@riddles_ns.route('/<string:riddle_id>/answer', methods=['GET'])
+class RiddleAnswerOnly(Resource):
+    @api.doc('get_riddle_answer_only', security='Bearer')
+    @jwt_required(optional=True) # Allow optional JWT for guest users
+    @api.response(200, 'Success', api.model('CorrectAnswers', {'correct_answers': fields.List(fields.String)}))
+    @api.response(404, 'Riddle not found')
+    def get(self, riddle_id):
+        """
+        Get the correct answers for a specific riddle ID.
+        """
+        riddle = Riddle.query.get(riddle_id)
+        if not riddle:
+            api.abort(404, "Riddle not found")
+
+        # You can add authorization logic here if needed, e.g.,
+        # only allow if the user is logged in or if they have already solved the riddle.
+        # current_user_id = get_jwt_identity()
+        # user = User.query.get(current_user_id) if current_user_id else None
+
+        correct_answers = [ans.answer_text for ans in riddle.answers if ans.is_correct]
+
+        return correct_answers, 200
+
 # Request Parser for Answer Submission
 answer_submit_parser = reqparse.RequestParser()
 answer_submit_parser.add_argument('answer_text', type=str, required=True, help='Answer text cannot be blank!')
@@ -350,7 +372,7 @@ class RiddleMarkCorrect(Resource):
         user_progress.manually_corrected = True
         if not user_progress.last_attempt_answer:
             user_progress.last_attempt_answer = "[Manually Corrected]"
-           
+            
         if user_progress.attempts is None:
             user_progress.attempts = 0
         user_progress.attempts += 1

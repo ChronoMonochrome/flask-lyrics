@@ -92,5 +92,12 @@
   "admin_error_unexpected_data": "エラー：サーバーからのなぞなぞ取得時に予期せぬデータ形式でした。",
   "admin_error_action": "なぞなぞの{{action}}中にエラーが発生しました：{{message}}",
   "admin_error_deleting_riddle": "なぞなぞの削除中にエラーが発生しました：{{message}}",
-  "admin_select_riddle_to_delete": "削除するなぞなぞを選択してください。"
+  "admin_select_riddle_to_delete": "削除するなぞなぞを選択してください。",
+  "english_translation_label": "訳：",
+  "show_translation_button": "翻訳を表示",
+  "hide_translation_button": "翻訳を隠す",
+  "answer_shown_no_xp": "答えが表示されました。この試行ではXPは付与されません。",
+  "error_marking_correct": "なぞなぞを正解としてマーク中にエラーが発生しました：{{message}}",
+  "show_answer_button": "答えを表示",
+  "hide_answer_button": "答えを隠す"
 }

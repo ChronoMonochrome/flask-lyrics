@@ -113,26 +113,37 @@ export const getUserProfile = async (axiosConfig = {}) => {
     return response.data;
 };
 
-// Admin API calls - FIX STARTS HERE
+export const getRiddleAnswer = async (riddleId) => {
+    try {
+        const response = await api.get(`/riddles/${riddleId}/answer`);
+        console.log("getRiddleAnswer response data:", response.data); // Debugging line
+        // The backend returns a raw array now, so just return the data directly
+        return response.data; // <--- CHANGED FROM response.data.correct_answers
+    } catch (error) {
+        console.error(`Error fetching riddle answer for ID ${riddleId}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Admin API calls
 // Function to add a new riddle
 export const addRiddle = (riddleData) => {
-    return api.post('/admin/add_riddle', riddleData); // <-- Changed from axios to api
+    return api.post('/admin/add_riddle', riddleData);
 };
 
 // NEW: Function to get all riddles for admin panel
 export const getAllRiddles = () => {
-    return api.get('/admin/riddles'); // <-- Changed from axios to api
+    return api.get('/admin/riddles');
 };
 
 // NEW: Function to update an existing riddle
 export const updateRiddle = (riddleId, riddleData) => {
-    return api.put(`/admin/riddles/${riddleId}`, riddleData); // <-- Changed from axios to api
+    return api.put(`/admin/riddles/${riddleId}`, riddleData);
 };
 
 // NEW: Function to delete a riddle
 export const deleteRiddle = (riddleId) => {
-    return api.delete(`/admin/riddles/${riddleId}`); // <-- Changed from axios to api
+    return api.delete(`/admin/riddles/${riddleId}`);
 };
-// FIX ENDS HERE
 
 export default api;

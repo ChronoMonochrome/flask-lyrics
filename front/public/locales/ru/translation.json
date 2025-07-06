@@ -92,5 +92,12 @@
   "admin_error_unexpected_data": "Ошибка: Неожиданный формат данных от сервера при получении загадок.",
   "admin_error_action": "Ошибка при {{action}} загадки: {{message}}",
   "admin_error_deleting_riddle": "Ошибка при удалении загадки: {{message}}",
-  "admin_select_riddle_to_delete": "Пожалуйста, выберите загадку для удаления."
+  "admin_select_riddle_to_delete": "Пожалуйста, выберите загадку для удаления.",
+  "english_translation_label": "Перевод:",
+  "show_translation_button": "Показать перевод",
+  "hide_translation_button": "Скрыть перевод",
+  "answer_shown_no_xp": "Ответ показан. XP за эту попытку не начисляется.",
+  "error_marking_correct": "Ошибка при отметке загадки как правильной: {{message}}",
+  "show_answer_button": "Показать ответ",
+  "hide_answer_button": "Скрыть ответ"
 }
