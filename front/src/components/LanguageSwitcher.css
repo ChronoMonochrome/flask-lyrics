@@ -1,0 +1,40 @@
+/* front/src/components/LanguageSwitcher.css */
+.language-switcher {
+  display: flex; /* Use flexbox for consistent button sizing */
+  justify-content: center; /* Center the buttons */
+  gap: 8px; /* Space between buttons */
+  margin-top: 15px; /* Add some space above the switcher */
+  margin-bottom: 15px; /* Add some space below the switcher */
+}
+
+.language-switcher button {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px; /* Slightly rounded corners */
+  font-size: 0.9em; /* Adjust font size if needed */
+  min-width: 80px; /* Ensure consistent width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  height: 38px; /* Fixed height for consistency */
+  display: flex; /* Make content vertically centered */
+  align-items: center; /* Vertically align text */
+  justify-content: center; /* Horizontally align text */
+  transition: background-color 0.2s, border-color 0.2s; /* Smooth transition */
+}
+
+.language-switcher button:hover {
+  background-color: #e0e0e0;
+}
+
+.language-switcher button.active {
+  background-color: #007bff; /* Highlight active language */
+  color: white;
+  border-color: #007bff;
+}
+
+.language-switcher button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

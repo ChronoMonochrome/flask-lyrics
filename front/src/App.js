@@ -1,4 +1,5 @@
-import React from 'react';
+// front/src/App.js
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import LoginPage from './components/LoginPage';
@@ -8,26 +9,38 @@ import UserDashboard from './components/UserDashboard';
 import AdminPanel from './components/AdminPanel';
 import RandomRiddlePage from './components/RandomRiddlePage';
 import NavBar from './components/NavBar';
-import { useTranslation } from 'react-i18next'; // Import useTranslation
+import LanguageSwitcher from './components/LanguageSwitcher'; // Import the new component
+import { useTranslation } from 'react-i18next';
 
 function App() {
-  const { t, i18n } = useTranslation(); // Use the hook
+  const { t, i18n } = useTranslation();
 
-  // Function to change language
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
+  // New useEffect for language detection and persistence
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('i18nextLng');
+    const systemLanguage = navigator.language.toLowerCase();
+
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    } else {
+      let defaultLang = 'en'; // Default to English
+
+      if (systemLanguage.startsWith('ru')) {
+        defaultLang = 'ru';
+      } else if (systemLanguage.startsWith('ja')) {
+        defaultLang = 'jp'; // Assuming 'jp' is your Japanese code
+      } else if (systemLanguage.startsWith('en')) {
+        defaultLang = 'en';
+      }
+      
+      i18n.changeLanguage(defaultLang);
+      localStorage.setItem('i18nextLng', defaultLang); // Save the detected language
+    }
+  }, [i18n]); // Dependency array: re-run only if i18n instance changes
 
   return (
     <div className="App">
       <NavBar />
-
-      {/* Language switcher */}
-      <div style={{ padding: '10px', textAlign: 'right' }}>
-        <button onClick={() => changeLanguage('en')} style={{ marginRight: '5px' }}>English</button>
-        <button onClick={() => changeLanguage('ru')} style={{ marginRight: '5px' }}>Русский</button>
-        <button onClick={() => changeLanguage('jp')}>日本語</button>
-      </div>
 
       <main>
         <Routes>
@@ -46,6 +59,12 @@ function App() {
           <Route path="/random-riddle" element={<RandomRiddlePage />} />
         </Routes>
       </main>
+
+      {/* Language switcher moved to footer-like area */}
+      <footer style={{ marginTop: 'auto', padding: '20px', textAlign: 'center' }}>
+        <LanguageSwitcher />
+        {/* You can add other footer content here if needed */}
+      </footer>
     </div>
   );
 }
