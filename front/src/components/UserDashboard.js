@@ -13,11 +13,13 @@ const UserDashboard = () => {
     return (
         <>
             <div>
-                <h2>{t('welcome_user', { username: currentUser.username })}!</h2> {/* Use translation */}
+                {/* Pass xp and level for interpolation */}
+                <h2>{t('welcome_user', { username: currentUser.username, xp: currentUser.xp, level: currentUser.level })}!</h2> {/* Use translation */}
                 {currentUser.avatar_url && (
                     <img src={currentUser.avatar_url} alt="User Avatar" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
                 )}
                 <p><strong>{t('nickname_label')}</strong> {currentUser.nickname || currentUser.username}</p> {/* Use translation */}
+                {/* These are already explicitly displayed below, but it's fine */}
                 <p><strong>{t('current_xp_label')}</strong> {currentUser.xp}</p> {/* Use translation */}
                 <p><strong>{t('current_level_label')}</strong> {currentUser.level}</p> {/* Use translation */}
             </div>
