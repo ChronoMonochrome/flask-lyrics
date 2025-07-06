@@ -1,26 +1,21 @@
-// front/src/components/RiddleCard.js
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 function RiddleCard({ riddle, onSubmitAnswer, isInitiallySolved }) {
     const [userAnswer, setUserAnswer] = useState('');
-    const [feedback, setFeedback] = useState(null); // { correct: boolean, message: string, actual_answer: string }
+    const [feedback, setFeedback] = useState(null);
     const [showAnswer, setShowAnswer] = useState(isInitiallySolved);
-    const [isSolvedLocally, setIsSolvedLocally] = useState(isInitiallySolved); // Track solved status for this card
-
-    // Store the actual correct answer if it's revealed or fetched.
-    // This will now primarily come from riddle.correct_answers if available.
+    const [isSolvedLocally, setIsSolvedLocally] = useState(isInitiallySolved);
     const [revealedCorrectAnswer, setRevealedCorrectAnswer] = useState('');
+    const { t } = useTranslation(); // Use the hook
 
     useEffect(() => {
         setIsSolvedLocally(isInitiallySolved);
         if (isInitiallySolved) {
             setShowAnswer(true);
-            // If the riddle is initially solved (e.g., loaded from user progress),
-            // and the riddle object itself contains correct_answers, use them.
             if (riddle.correct_answers && riddle.correct_answers.length > 0) {
-                setRevealedCorrectAnswer(riddle.correct_answers.join(' / ')); // Join multiple correct answers
+                setRevealedCorrectAnswer(riddle.correct_answers.join(' / '));
             } else if (!localStorage.getItem('access_token')) {
-                // For guest users, if already solved, try to get from local storage if available
                 const storedGuestProgress = JSON.parse(localStorage.getItem('guest_progress') || '{}');
                 if (storedGuestProgress[riddle.id]?.correct) {
                     setRevealedCorrectAnswer(storedGuestProgress[riddle.id].correctAnswer);
@@ -29,7 +24,6 @@ function RiddleCard({ riddle, onSubmitAnswer, isInitiallySolved }) {
         }
     }, [isInitiallySolved, riddle.id, riddle.correct_answers]);
 
-
     const handleAnswerSubmit = async () => {
         setFeedback(null);
         const result = await onSubmitAnswer(riddle.id, userAnswer);
@@ -37,63 +31,59 @@ function RiddleCard({ riddle, onSubmitAnswer, isInitiallySolved }) {
         if (result.correct) {
             setIsSolvedLocally(true);
             setShowAnswer(true);
-            // If the submission was correct, use the actual_answer from the backend response
             setRevealedCorrectAnswer(result.actual_answer || riddle.correct_answers.join(' / '));
         }
     };
 
     const handleShowAnswer = () => {
         setShowAnswer(true);
-        setIsSolvedLocally(true); // Mark as solved when answer is manually shown
+        setIsSolvedLocally(true);
 
-        // When "Show Answer" is clicked, use the correct_answers from the riddle object
         if (riddle.correct_answers && riddle.correct_answers.length > 0) {
-            setRevealedCorrectAnswer(riddle.correct_answers.join(' / ')); // Join multiple answers for display
-
-            // For guests, also update local storage if they manually reveal
+            setRevealedCorrectAnswer(riddle.correct_answers.join(' / '));
             if (!localStorage.getItem('access_token')) {
                 const storedGuestProgress = JSON.parse(localStorage.getItem('guest_progress') || '{}');
                 const updatedProgress = {
                     ...storedGuestProgress,
                     [riddle.id]: {
-                        answered: true, // Marked as answered by showing
-                        correct: true, // Treat as correct for showing the answer
-                        answer: "[Revealed]", // Mark how it was answered
+                        answered: true,
+                        correct: true,
+                        answer: "[Revealed]",
                         correctAnswer: riddle.correct_answers.join(' / ')
                     }
                 };
                 localStorage.setItem('guest_progress', JSON.stringify(updatedProgress));
             }
         } else {
-            setRevealedCorrectAnswer("Answer not available."); // Fallback
+            setRevealedCorrectAnswer(t('answer_not_available')); // Use translation
         }
     };
 
     return (
         <div className={`riddle-card ${isSolvedLocally ? 'solved' : ''}`}>
-            <h3>Riddle #{riddle.id.substring(0, 8)}...</h3>
-            <p><strong>Japanese (Kanji):</strong> {riddle.text_kanji}</p>
-            <p><strong>Japanese (Hiragana):</strong> {riddle.text_hiragana}</p>
-            <p><strong>English:</strong> {riddle.english_text}</p>
-            <p><strong>Category:</strong> {riddle.category} | <strong>Difficulty:</strong> {riddle.difficulty}</p>
+            <h3>{t('riddle_card_title')}{riddle.id.substring(0, 8)}...</h3> {/* Use translation */}
+            <p><strong>{t('japanese_kanji')}</strong> {riddle.text_kanji}</p> {/* Use translation */}
+            <p><strong>{t('japanese_hiragana')}</strong> {riddle.text_hiragana}</p> {/* Use translation */}
+            <p><strong>{t('english_text')}</strong> {riddle.english_text}</p> {/* Use translation */}
+            <p><strong>{t('category_label')}</strong> {riddle.category} | <strong>{t('difficulty_label')}</strong> {riddle.difficulty}</p> {/* Use translation */}
 
             {isSolvedLocally ? (
-                <p style={{ color: 'green', fontWeight: 'bold' }}>&#10003; Solved!</p>
+                <p style={{ color: 'green', fontWeight: 'bold' }}>{t('solved_status')}</p> // Use translation
             ) : null}
 
             {!isSolvedLocally ? (
                 <div>
                     <input
                         type="text"
-                        placeholder="Your answer (in English or Japanese)"
+                        placeholder={t('answer_input_placeholder')} // Use translation
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         style={{ display: 'block', marginBottom: '10px', width: 'calc(100% - 20px)', padding: '8px' }}
                     />
-                    <button onClick={handleAnswerSubmit} style={{ marginRight: '10px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Submit Answer</button>
+                    <button onClick={handleAnswerSubmit} style={{ marginRight: '10px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>{t('submit_answer_button')}</button> {/* Use translation */}
                     {!showAnswer && (
                         <button onClick={handleShowAnswer} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                            Show Answer
+                            {t('show_answer_button')} {/* Use translation */}
                         </button>
                     )}
                 </div>
@@ -101,13 +91,13 @@ function RiddleCard({ riddle, onSubmitAnswer, isInitiallySolved }) {
 
             {showAnswer && (
                 <p style={{ marginTop: '15px' }}>
-                    <strong>Correct Answer:</strong> {revealedCorrectAnswer || "N/A (Backend did not provide)"}
+                    <strong>{t('correct_answer_label')}</strong> {revealedCorrectAnswer || t('answer_not_available')} {/* Use translation */}
                 </p>
             )}
 
             {feedback && (
                 <p className={`riddle-status ${feedback.correct ? 'correct' : 'incorrect'}`} style={{ marginTop: '10px', fontWeight: 'bold', color: feedback.correct ? 'green' : 'red' }}>
-                    {feedback.message}
+                    {feedback.message === 'Submission failed.' ? t('riddle_submission_failed') : feedback.message} {/* Handle generic submission failed message */}
                 </p>
             )}
         </div>

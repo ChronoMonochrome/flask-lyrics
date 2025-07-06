@@ -1,11 +1,10 @@
-// src/components/RiddlesPage.js
-import axios from 'axios'; // Keep this import for axios.isCancel
+import axios from 'axios';
 import React, { useState, useEffect, useCallback } from 'react';
-import { getRiddles, submitAnswer } from '../services/api'; // Ensure getRiddles is imported
+import { getRiddles, submitAnswer } from '../services/api';
 import RiddleCard from './RiddleCard';
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 
-// Helper to generate a unique guest ID (already good)
 const getGuestId = () => {
     let guestId = localStorage.getItem('guest_id');
     if (!guestId) {
@@ -16,33 +15,27 @@ const getGuestId = () => {
 };
 
 function RiddlesPage() {
-    // Get currentUser, the `loading` state, and setCurrentUser from AuthContext
-    const { currentUser, loading: authLoading, setCurrentUser } = useAuth(); // <-- Add setCurrentUser here
+    const { currentUser, loading: authLoading, setCurrentUser } = useAuth();
     const [riddles, setRiddles] = useState([]);
-    const [pageLoading, setPageLoading] = useState(true); // Separate loading state for this page's data fetch
+    const [pageLoading, setPageLoading] = useState(true);
     const [error, setError] = useState('');
     const [guestProgress, setGuestProgress] = useState({});
-
-    // Add state for filters (even if not used in UI yet, ensures the function signature is matched)
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedDifficulty, setSelectedDifficulty] = useState(null);
+    const { t } = useTranslation(); // Use the hook
 
-
-    // Function to fetch riddles and user progress
-    // Updated to accept signal and filter parameters
     const fetchAllRiddlesAndProgress = useCallback(async (signal) => {
         try {
-            setPageLoading(true); // Start page-specific loading
-            setError(''); // Clear any previous errors
+            setPageLoading(true);
+            setError('');
 
-            // Pass category, difficulty, and then the signal in an object
             const fetchedRiddles = await getRiddles(
-                selectedCategory,    // Pass category (can be null)
-                selectedDifficulty,  // Pass difficulty (can be null)
-                { signal: signal }   // Pass axios config with signal
+                selectedCategory,
+                selectedDifficulty,
+                { signal: signal }
             );
 
-            if (!currentUser) { // Guest user logic
+            if (!currentUser) {
                 const storedProgress = JSON.parse(localStorage.getItem('guest_progress') || '{}');
                 setGuestProgress(storedProgress);
             }
@@ -52,15 +45,14 @@ function RiddlesPage() {
                 console.log('Riddle fetch aborted:', err.message);
             } else {
                 console.error("Error fetching riddles:", err);
-                setError(err.message || 'Failed to fetch riddles.');
+                setError(err.message || t('error_fetching_riddles', { message: err.message || 'unknown error' })); // Use translation
             }
         } finally {
-            setPageLoading(false); // End page-specific loading
+            setPageLoading(false);
         }
-    }, [currentUser, selectedCategory, selectedDifficulty]); // Dependencies for useCallback
+    }, [currentUser, selectedCategory, selectedDifficulty, t]); // Add 't' to dependencies
 
     useEffect(() => {
-        // *** CRUCIAL: Only fetch riddles if AuthContext has finished its initial loading ***
         if (!authLoading) {
             const controller = new AbortController();
             const signal = controller.signal;
@@ -71,31 +63,30 @@ function RiddlesPage() {
                 controller.abort();
             };
         }
-    }, [fetchAllRiddlesAndProgress, authLoading]); // Dependency on both fetch function and authLoading
+    }, [fetchAllRiddlesAndProgress, authLoading]);
 
     const handleAnswerSubmission = async (riddleId, userAnswer) => {
         try {
             const result = await submitAnswer(riddleId, userAnswer);
 
-            if (currentUser) { // Logged-in user: update context with new XP/level
+            if (currentUser) {
                 if (result.new_xp !== undefined && result.new_level !== undefined) {
                     setCurrentUser(prevUser => ({
                         ...prevUser,
                         xp: result.new_xp,
                         level: result.new_level,
-                        // Update solved riddles
                         solved_riddles_ids: result.correct
                             ? [...new Set([...(prevUser.solved_riddles_ids || []), riddleId])]
                             : prevUser.solved_riddles_ids
                     }));
 
-                    if (result.level_up) { // Assuming backend sends 'level_up: true'
-                        alert(`Congratulations! You leveled up to Level ${result.new_level}!`);
+                    if (result.level_up) {
+                        alert(t('alert_level_up', { newLevel: result.new_level })); // Use translation
                     } else if (result.correct) {
-                        alert(`Correct! You gained ${result.xp_gained} XP!`);
+                        alert(t('alert_xp_gained', { xpGained: result.xp_gained })); // Use translation
                     }
                 }
-            } else { // Guest user: save progress locally
+            } else {
                 const updatedProgress = {
                     ...guestProgress,
                     [riddleId]: {
@@ -112,15 +103,14 @@ function RiddlesPage() {
             return {
                 correct: result.correct,
                 message: result.message,
-                actual_answer: result.actual_answer // Backend should send this for solved riddles
+                actual_answer: result.actual_answer
             };
         } catch (err) {
-            setError(err.message || 'Failed to submit answer.');
-            return { correct: false, message: 'Submission failed.' };
+            setError(err.message || t('riddle_submission_failed')); // Use translation
+            return { correct: false, message: t('riddle_submission_failed') }; // Use translation
         }
     };
 
-    // Helper to check if a riddle is solved (for rendering)
     const isRiddleSolved = (riddleId) => {
         if (currentUser) {
             return currentUser.solved_riddles_ids?.includes(riddleId);
@@ -129,18 +119,17 @@ function RiddlesPage() {
         }
     };
 
-    // Display loading state from either AuthContext or this page's fetch
-    if (authLoading || pageLoading) return <p>Loading riddles...</p>;
-    if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
-    if (riddles.length === 0) return <p>No riddles available yet. Check back later!</p>;
+    if (authLoading || pageLoading) return <p>{t('loading_riddles')}</p>; // Use translation
+    if (error) return <p style={{ color: 'red' }}>{t('error_fetching_riddles', { message: error })}</p>; // Use translation
+    if (riddles.length === 0) return <p>{t('no_riddles_available')}</p>; // Use translation
 
     return (
         <div>
-            <h2>{currentUser ? "Your Riddles" : "Riddles (Guest Mode)"}</h2>
+            <h2>{currentUser ? t('your_riddles_title') : t('guest_riddles_title')}</h2> {/* Use translation */}
             <p>
                 {currentUser
-                    ? `Welcome, ${currentUser.username}! Your current XP: ${currentUser.xp}, Level: ${currentUser.level}.`
-                    : `You are playing as a guest (ID: ${getGuestId()}). Your progress is saved locally.`
+                    ? t('welcome_user', { username: currentUser.username, xp: currentUser.xp, level: currentUser.level }) // Use translation with interpolation
+                    : t('guest_info', { guestId: getGuestId() }) // Use translation with interpolation
                 }
             </p>
             {riddles.map((riddle) => (

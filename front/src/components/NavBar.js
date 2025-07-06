@@ -1,19 +1,19 @@
-// front/src/components/NavBar.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth hook
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 const NavBar = () => {
-  const { currentUser, logout, loading } = useAuth(); // Use useAuth here
+  const { currentUser, logout, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Use the hook
 
-  // If loading, you might want to show a simplified nav or nothing
   if (loading) {
     return (
       <nav>
         <ul>
-          <li><Link to="/">Home</Link></li>
-          <li>Loading Navigation...</li>
+          <li><Link to="/">{t('navigation_home')}</Link></li> {/* Use translation */}
+          <li>{t('loading_navigation')}</li> {/* Use translation */}
         </ul>
       </nav>
     );
@@ -21,21 +21,21 @@ const NavBar = () => {
 
   const handleLogout = () => {
     logout();
-    localStorage.removeItem('guest_progress'); // Clear guest progress on logout
-    navigate('/'); // Navigate to home page after logout
+    localStorage.removeItem('guest_progress');
+    navigate('/');
   };
 
   return (
     <nav>
       <ul>
-        <li><Link to="/">Home</Link></li>
-        {!currentUser && <li><Link to="/login">Login</Link></li>}
-        {!currentUser && <li><Link to="/register">Register</Link></li>}
-        {currentUser && <li><Link to="/dashboard">Dashboard</Link></li>}
-        {currentUser && currentUser.role === 'admin' && <li><Link to="/admin">Admin Panel</Link></li>}
-        {currentUser && <li><button onClick={handleLogout}>Logout</button></li>}
-        <li><Link to="/riddles">Riddles</Link></li>
-        <li><Link to="/random-riddle">Random Riddle</Link></li>
+        <li><Link to="/">{t('navigation_home')}</Link></li> {/* Use translation */}
+        {!currentUser && <li><Link to="/login">{t('navigation_login')}</Link></li>} {/* Use translation */}
+        {!currentUser && <li><Link to="/register">{t('navigation_register')}</Link></li>} {/* Use translation */}
+        {currentUser && <li><Link to="/dashboard">{t('navigation_dashboard')}</Link></li>} {/* Use translation */}
+        {currentUser && currentUser.role === 'admin' && <li><Link to="/admin">{t('navigation_admin_panel')}</Link></li>} {/* Use translation */}
+        {currentUser && <li><button onClick={handleLogout}>{t('navigation_logout')}</button></li>} {/* Use translation */}
+        <li><Link to="/riddles">{t('navigation_riddles')}</Link></li> {/* Use translation */}
+        <li><Link to="/random-riddle">{t('navigation_random_riddle')}</Link></li> {/* Use translation */}
       </ul>
     </nav>
   );

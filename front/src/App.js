@@ -1,37 +1,41 @@
-// front/src/App.js
 import React from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-// REMOVE: import { useAuth } from './contexts/AuthContext'; // This hook should NOT be used directly in App.js
-import './App.css'; // Your main CSS
+import { Routes, Route } from 'react-router-dom';
+import './App.css';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import RiddlesPage from './components/RiddlesPage';
 import UserDashboard from './components/UserDashboard';
 import AdminPanel from './components/AdminPanel';
 import RandomRiddlePage from './components/RandomRiddlePage';
-import NavBar from './components/NavBar'; // Assuming you'll create a NavBar component
+import NavBar from './components/NavBar';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 function App() {
-  // REMOVE: const { currentUser, logout } = useAuth(); // No useAuth() call here
-  // REMOVE: const navigate = useNavigate(); // Move useNavigate into NavBar if needed there
+  const { t, i18n } = useTranslation(); // Use the hook
 
-  // The App component itself should NOT depend on currentUser directly.
-  // The NavBar component will handle conditional links based on auth state.
-  // If a route requires authentication, you'd use a ProtectedRoute pattern,
-  // or handle the redirect/message inside the specific page component (e.g., UserDashboard).
+  // Function to change language
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
 
   return (
     <div className="App">
-      {/* NavBar will now handle the links and logout logic using useAuth() */}
-      <NavBar /> 
+      <NavBar />
+
+      {/* Language switcher */}
+      <div style={{ padding: '10px', textAlign: 'right' }}>
+        <button onClick={() => changeLanguage('en')} style={{ marginRight: '5px' }}>English</button>
+        <button onClick={() => changeLanguage('ru')} style={{ marginRight: '5px' }}>Русский</button>
+        <button onClick={() => changeLanguage('jp')}>日本語</button>
+      </div>
 
       <main>
         <Routes>
           <Route path="/" element={
             <div>
-              <h1>Welcome to Japanese Riddles!</h1>
-              <p>Login or Register to track your progress, or play as a guest.</p>
-              <p>Click "Riddles" to start playing.</p>
+              <h1>{t('welcome_title')}</h1>
+              <p>{t('home_description')}</p>
+              <p>{t('start_playing_prompt')}</p>
             </div>
           } />
           <Route path="/login" element={<LoginPage />} />

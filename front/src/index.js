@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client'; // Use createRoot for React 18+
 import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter here
+import './i18n';
 import './index.css'; // Your global CSS
 import App from './App'; // Your main App component
 import { AuthProvider } from './contexts/AuthContext'; // Import AuthProvider
