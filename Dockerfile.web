@@ -34,6 +34,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     default-libmysqlclient-dev \
     gcc \
+    # Add any other missing dependencies here if needed, e.g., git if you rely on it
+    # for cloning data inside the container (though we are copying from host now)
     && rm -rf /var/lib/apt/lists/*
 
 # Create the /app/app/static directory BEFORE copying into it
@@ -41,13 +43,15 @@ RUN mkdir -p /dist
 RUN mkdir -p /usr/src/app/repo_source/dist
 RUN mkdir -p /usr/src/app/repo_source/build
 RUN mkdir -p /app/app/static
+RUN mkdir -p /app/data # Ensure data directory exists
 
 # Copy local requirements.txt and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the seeding script into the FINAL image
-COPY seed_db.py /app/seed_db.py
+# Copy the data files (words.ljson, words.idx, lyrics.json) into the container
+# This is crucial for the app to find the word and lyrics data.
+COPY ./data /app/data
 
 # Copy the built frontend assets from the frontend_builder stage.
 # The 'build' folder is now expected to be located inside /usr/src/app/repo_source/build.
@@ -60,6 +64,8 @@ RUN chmod -R 775 /app/app/static
 # Make sure your local 'app' directory and 'logger.py' are in the root of your project context
 COPY app /app/app
 COPY print_db_data.py /app/print_db_data.py
+COPY seed_db.py /app/seed_db.py
+
 
 # Expose port 8012, where Gunicorn will listen
 EXPOSE 8012

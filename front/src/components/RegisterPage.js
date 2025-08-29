@@ -26,7 +26,7 @@ function RegisterPage() {
         setUsername('');
         setEmail('');
         setPassword('');
-        navigate('/riddles');
+        navigate('/');
       } else {
         setError(t('register_failed_error')); // Use translation
       }

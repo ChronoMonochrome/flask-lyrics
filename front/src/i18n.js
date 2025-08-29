@@ -25,7 +25,7 @@ i18n
     },
 
     // Optional: Configure namespaces if you want to split translations into multiple files
-    // ns: ['common', 'auth', 'riddles'], // Example namespaces
+    // ns: ['common', 'auth'], // Example namespaces
     // defaultNS: 'common', // Default namespace
   });
 

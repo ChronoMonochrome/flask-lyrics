@@ -11,6 +11,7 @@ from .api import api_bp
 
 # Import Migrate
 from flask_migrate import Migrate #
+from .words_db import FlatFileDatabase # New import
 
 # Determine the absolute path to your React build's *actual static content root*
 # This is where Create React App places its JS/CSS/image bundles.
@@ -21,6 +22,23 @@ REACT_STATIC_ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__))
 # These will be served explicitly via routes below.
 FRONTEND_BUILD_ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
+
+# --- NEW: Initialize the word database globally
+# Use a lazy loading pattern to initialize it only when needed
+words_db_instance = None
+def get_words_db():
+    global words_db_instance
+    if words_db_instance is None:
+        try:
+            data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'words.ljson')
+            index_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'words.idx')
+            words_db_instance = FlatFileDatabase(data_file, index_file)
+            words_db_instance.load_data()
+            print("Japanese word database initialized successfully.")
+        except Exception as e:
+            print(f"Failed to initialize word database: {e}")
+            words_db_instance = None # Set to None on failure to retry or handle later
+    return words_db_instance
 
 app = Flask(
     __name__,
@@ -50,6 +68,12 @@ migrate = Migrate(app, db) #
 
 # Register blueprints
 app.register_blueprint(api_bp, url_prefix='/api')
+
+# Register a teardown context to ensure the database object is available
+# across all requests without needing to be re-initialized.
+@app.before_first_request
+def initialize_database():
+    get_words_db()
 
 # --- JWT Callbacks (Optional but Recommended for customizing user loading) ---
 from .models import User # Make sure to import your User model

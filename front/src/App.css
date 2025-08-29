@@ -86,60 +86,6 @@ form button:hover {
   background-color: #0056b3;
 }
 
-.riddle-card {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  text-align: left;
-}
-
-.riddle-card h3 {
-  color: #007bff;
-  margin-top: 0;
-}
-
-.riddle-card p {
-  margin-bottom: 10px;
-  line-height: 1.6;
-}
-
-.riddle-card input[type="text"] {
-  width: calc(100% - 22px); /* Adjust for padding and border */
-  padding: 10px;
-  margin-right: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.riddle-card button {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.riddle-card button:hover {
-  background-color: #218838;
-}
-
-.riddle-status {
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-.riddle-status.correct {
-  color: green;
-}
-
-.riddle-status.incorrect {
-  color: red;
-}
-
 /* Add this to your CSS file */
 
 .notification {
@@ -173,15 +119,6 @@ form button:hover {
     10% { opacity: 1; transform: translateY(0); }
     90% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-20px); }
-}
-
-/* Optional: Add some basic styling for the button group and card */
-.riddle-card {
-    border: 1px solid #eee;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
 }
 
 .button-group {
@@ -231,4 +168,77 @@ main {
 
 footer {
   /* Styles moved to LanguageSwitcher.css for consistency */
+}
+
+/* Styles for Lyrics Page (from generate_lyrics.py) */
+body {
+  font-family: 'Hina Mincho', serif; /* Apply calligraphic font for general Japanese text */
+}
+.kanji {
+  color: black;
+}
+.furigana {
+  color: blue;
+  font-size: 0.7em; /* Adjust as needed */
+}
+.katakana {
+  color: #8A2BE2; /* Violet */
+}
+.english {
+  color: green;
+}
+.hiragana {
+  color: black; /* Default to black, can be changed */
+}
+
+/* --- Furigana positioning to keep Kanji on baseline and Furigana above --- */
+ruby {
+  ruby-position: over; /* Puts furigana above base text */
+  display: inline-flex; /* Treat ruby as an inline flex container */
+  flex-direction: column; /* Stack ruby text vertically */
+  vertical-align: baseline; /* Align the *base* of the ruby element with the surrounding text baseline */
+  line-height: 1; /* Keep line height tight */
+  margin: 0 0.15em; /* Small horizontal margin for spacing */
+}
+
+rt {
+  display: block; /* Make furigana a block within the ruby flex container */
+  order: -1; /* Place furigana (rt) before kanji (rb) in flex order */
+  font-size: 0.6em; /* Smaller furigana */
+  line-height: 1; /* Tighten line height for furigana itself */
+  white-space: nowrap; /* Prevent furigana from wrapping */
+  text-align: center; /* Center furigana above kanji */
+  margin-bottom: -0.2em; /* This pulls rt up, helping rb align better */
+}
+
+rb {
+  display: block; /* Make kanji a block within the ruby flex container */
+  line-height: 1; /* Ensure kanji itself doesn't add extra vertical space */
+}
+
+/* Ensure all direct children of .lyric-line align their baselines */
+.lyric-line {
+  display: flex; /* Use flexbox for horizontal alignment */
+  flex-wrap: wrap; /* Allow wrapping if line is too long */
+  align-items: baseline; /* Crucial: Align all items along their text baseline */
+  margin-bottom: 0.5rem; /* Space between lines */
+}
+/* Explicitly set vertical-align for spans to ensure consistent baseline */
+.lyric-line > span {
+  vertical-align: baseline;
+}
+.lyric-line > br {
+  width: 100%; /* Ensure break takes full width */
+}
+
+/* --- Cyrillic Font Fix (Increased Specificity and Fallbacks) --- */
+.cyrillic {
+  font-family: 'Open Sans', 'Noto Sans', Arial, sans-serif !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  line-height: 1.5 !important;
+  text-rendering: optimizeLegibility;
+}
+.text-gray-700 .cyrillic {
+  font-family: 'Open Sans', 'Noto Sans', Arial, sans-serif !important;
 }

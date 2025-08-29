@@ -19,7 +19,7 @@ function LoginPage() {
     try {
       const success = await login(username, password);
       if (success) {
-        navigate('/riddles');
+        // navigate to home;
       } else {
         setError(t('login_failed_error')); // Use translation
       }

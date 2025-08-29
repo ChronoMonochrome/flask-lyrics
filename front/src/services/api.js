@@ -1,17 +1,14 @@
 // front/src/services/api.js
 import axios from 'axios';
 
-// We'll store the navigate function here
 let navigateRef;
 
 export const setNavigateFunction = (navigate) => {
     navigateRef = navigate;
 };
 
-// KEEP THIS AS HTTPS - It's correct for the base URL
-const API_BASE_URL = 'https://japaneseriddle.ignorelist.com/api';
+const API_BASE_URL = 'https://japaneseapp.ignorelist.com/api';
 
-// Use 'api' as the configured instance for all calls
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -19,7 +16,6 @@ const api = axios.create({
     },
 });
 
-// Request interceptor to attach JWT token
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('access_token');
     if (token) {
@@ -30,14 +26,10 @@ api.interceptors.request.use(config => {
     return Promise.reject(error);
 });
 
-// Response interceptor to handle token expiration/invalidity
-api.interceptors.response.use(response => response, async error => { // Made async to await data
+api.interceptors.response.use(response => response, async error => {
     const originalRequest = error.config;
 
-    // Check if the error is due to an expired/invalid token (401 status)
-    // AND it's not a retry after a refresh attempt (to prevent infinite loops)
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
-        // Check for the specific backend signal for redirection
         const errorData = error.response.data;
         if (errorData && errorData.redirect_to_home) {
             console.warn('Unauthorized access - token might be expired or invalid. Redirecting to home.');
@@ -45,15 +37,12 @@ api.interceptors.response.use(response => response, async error => { // Made asy
             localStorage.removeItem('user_data');
             localStorage.removeItem('guest_progress');
 
-            // Use the stored navigate function to redirect
             if (navigateRef) {
-                navigateRef('/'); // Redirect to the home page
+                navigateRef('/');
             } else {
-                // Fallback for cases where navigateRef isn't set yet (unlikely in AuthProvider useEffect)
                 window.location.href = '/';
             }
 
-            // Reject the promise to stop the original request from proceeding
             return Promise.reject(new Error(errorData.message || 'Session expired. Please log in again.'));
         }
     }
@@ -72,78 +61,38 @@ export const registerUser = async (username, password, email) => {
     return response.data;
 };
 
-export const getRiddles = async (category = null, difficulty = null, axiosConfig = {}) => {
-    let url = '/riddles';
-    const params = new URLSearchParams();
-
-    if (category && typeof category === 'string') {
-        params.append('category', category);
-    }
-    if (difficulty && typeof difficulty === 'string') {
-        params.append('difficulty', difficulty);
-    }
-
-    if (params.toString()) {
-        url += `?${params.toString()}`;
-    }
-
-    const response = await api.get(url, axiosConfig);
-    return response.data;
-};
-
-export const getRandomRiddle = async (axiosConfig = {}) => {
-    const response = await api.get('/riddles/random', axiosConfig);
-    return response.data;
-};
-
-export const submitAnswer = async (riddleId, userAnswer) => {
-    const response = await api.post(`/riddles/${riddleId}/submit_answer`, {
-        answer_text: userAnswer,
-    });
-    return response.data;
-};
-
-export const markRiddleCorrect = async (riddleId) => {
-    const response = await api.post(`/riddles/${riddleId}/mark_correct`);
-    return response.data;
-}
-
-export const getUserProfile = async (axiosConfig = {}) => {
-    const response = await api.get('/auth/user_profile', axiosConfig);
-    return response.data;
-};
-
-export const getRiddleAnswer = async (riddleId) => {
+export const getWords = async (query) => {
     try {
-        const response = await api.get(`/riddles/${riddleId}/answer`);
-        console.log("getRiddleAnswer response data:", response.data); // Debugging line
-        // The backend returns a raw array now, so just return the data directly
-        return response.data; // <--- CHANGED FROM response.data.correct_answers
+        const response = await api.get('/words/search', {
+            params: { q: query }
+        });
+        return response.data;
     } catch (error) {
-        console.error(`Error fetching riddle answer for ID ${riddleId}:`, error.response?.data || error.message);
-        throw error;
+        console.error("Error fetching words:", error.response?.data || error.message);
+        return [];
     }
 };
 
-// Admin API calls
-// Function to add a new riddle
-export const addRiddle = (riddleData) => {
-    return api.post('/admin/add_riddle', riddleData);
+// NEW: API Functions for Lyrics
+export const getSongList = async () => {
+    try {
+        const response = await api.get('/lyrics/list');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching song list:", error.response?.data || error.message);
+        return [];
+    }
 };
 
-// NEW: Function to get all riddles for admin panel
-export const getAllRiddles = () => {
-    return api.get('/admin/riddles');
-};
-
-// NEW: Function to update an existing riddle
-export const updateRiddle = (riddleId, riddleData) => {
-    return api.put(`/admin/riddles/${riddleId}`, riddleData);
-};
-
-// NEW: Function to delete a riddle
-export const deleteRiddle = (riddleId) => {
-    return api.delete(`/admin/riddles/${riddleId}`);
+export const getSongLyricsHtml = async (songId) => {
+    try {
+        // Note: We expect HTML back, so we use `responseType: 'text'`
+        const response = await api.get(`/lyrics/${songId}/html`, { responseType: 'text' });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching lyrics for ${songId}:`, error.response?.data || error.message);
+        return null;
+    }
 };
 
 export default api;

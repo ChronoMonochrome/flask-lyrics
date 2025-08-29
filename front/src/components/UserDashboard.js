@@ -23,15 +23,6 @@ const UserDashboard = () => {
                 <p><strong>{t('current_xp_label')}</strong> {currentUser.xp}</p> {/* Use translation */}
                 <p><strong>{t('current_level_label')}</strong> {currentUser.level}</p> {/* Use translation */}
             </div>
-
-            {currentUser.solved_riddles_ids && currentUser.solved_riddles_ids.length > 0 && (
-                <div>
-                    <h3>{t('solved_riddles_title')}</h3> {/* Use translation */}
-                    <ul>
-                        {currentUser.solved_riddles_ids.map(rId => <li key={rId}>{t('riddle_id_label', { riddleId: rId })}</li>)} {/* Use translation with interpolation */}
-                    </ul>
-                </div>
-            )}
         </>
     );
 };
