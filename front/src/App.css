@@ -174,6 +174,22 @@ footer {
 body {
   font-family: 'Hina Mincho', serif; /* Apply calligraphic font for general Japanese text */
 }
+
+/* --- Correct Furigana Rendering CSS --- */
+ruby {
+  ruby-position: over; /* Puts furigana above base text, the standard and correct way */
+}
+
+rt {
+  font-size: 0.6em; /* Smaller furigana */
+}
+
+/* This is crucial for hiding the parentheses fallback in older browsers. */
+rp {
+  display: none;
+}
+
+/* --- (Optional) Keep the rest of your styling for other elements --- */
 .kanji {
   color: black;
 }
@@ -191,44 +207,18 @@ body {
   color: black; /* Default to black, can be changed */
 }
 
-/* --- Furigana positioning to keep Kanji on baseline and Furigana above --- */
-ruby {
-  ruby-position: over; /* Puts furigana above base text */
-  display: inline-flex; /* Treat ruby as an inline flex container */
-  flex-direction: column; /* Stack ruby text vertically */
-  vertical-align: baseline; /* Align the *base* of the ruby element with the surrounding text baseline */
-  line-height: 1; /* Keep line height tight */
-  margin: 0 0.15em; /* Small horizontal margin for spacing */
-}
-
-rt {
-  display: block; /* Make furigana a block within the ruby flex container */
-  order: -1; /* Place furigana (rt) before kanji (rb) in flex order */
-  font-size: 0.6em; /* Smaller furigana */
-  line-height: 1; /* Tighten line height for furigana itself */
-  white-space: nowrap; /* Prevent furigana from wrapping */
-  text-align: center; /* Center furigana above kanji */
-  margin-bottom: -0.2em; /* This pulls rt up, helping rb align better */
-}
-
-rb {
-  display: block; /* Make kanji a block within the ruby flex container */
-  line-height: 1; /* Ensure kanji itself doesn't add extra vertical space */
-}
-
 /* Ensure all direct children of .lyric-line align their baselines */
 .lyric-line {
-  display: flex; /* Use flexbox for horizontal alignment */
-  flex-wrap: wrap; /* Allow wrapping if line is too long */
-  align-items: baseline; /* Crucial: Align all items along their text baseline */
-  margin-bottom: 0.5rem; /* Space between lines */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
 }
-/* Explicitly set vertical-align for spans to ensure consistent baseline */
 .lyric-line > span {
   vertical-align: baseline;
 }
 .lyric-line > br {
-  width: 100%; /* Ensure break takes full width */
+  width: 100%;
 }
 
 /* --- Cyrillic Font Fix (Increased Specificity and Fallbacks) --- */

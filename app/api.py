@@ -1,5 +1,5 @@
 import traceback
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, current_app, request, make_response
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.exceptions import HTTPException, InternalServerError, Unauthorized, BadRequest, Forbidden, NotFound
 from app.models import db, User # Removed Riddle, Answer, UserProgress for brevity, add back if needed
@@ -31,37 +31,22 @@ from flask_jwt_extended.exceptions import (
 
 import os
 from dotenv import load_dotenv
-from . import get_words_db # New import
+
+from .lyrics_utils import generate_lyrics_page_html
+
+from . import LYRICS_DATA, get_words_db
 
 api_bp = Blueprint('api', __name__)
 
 api = Api(api_bp, version='1.0', title='Japanese Riddles API',
-          description='API for Japanese Riddles application', doc='/doc',
-          catch_all_404s=True)
+             description='API for Japanese Riddles application', doc='/doc',
+             catch_all_404s=True)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.path.exists(os.path.join(BASE_DIR, '.env.local')):
     load_dotenv(os.path.join(BASE_DIR, '.env.local'))
 else:
     load_dotenv(os.path.join(BASE_DIR, '.env'))
-
-# --- NEW: Load lyrics data once on startup ---
-LYRICS_DATA = {}
-LYRICS_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'lyrics.json')
-
-try:
-    with open(LYRICS_FILE_PATH, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        for song in data.get('songs', []):
-            LYRICS_DATA[song['id']] = song
-    current_app.logger.info(f"Loaded {len(LYRICS_DATA)} songs from {LYRICS_FILE_PATH}")
-except FileNotFoundError:
-    current_app.logger.error(f"Lyrics file not found: {LYRICS_FILE_PATH}")
-except json.JSONDecodeError as e:
-    current_app.logger.error(f"Error decoding lyrics JSON from {LYRICS_FILE_PATH}: {e}")
-except Exception as e:
-    current_app.logger.error(f"An unexpected error occurred loading lyrics data: {e}")
-# --- END NEW: Load lyrics data ---
 
 # Model for User (for API serialization)
 user_model = api.model('User', {
@@ -267,7 +252,7 @@ class LyricsList(Resource):
     def get(self):
         """Returns a list of available songs with their titles and artists."""
         song_list = [{'id': s_id, 'title': LYRICS_DATA[s_id]['title'], 'artist': LYRICS_DATA[s_id]['artist']}
-                     for s_id in LYRICS_DATA.keys()]
+                        for s_id in LYRICS_DATA.keys()]
         return jsonify(song_list)
 
 @lyrics_ns.route('/<string:song_id>/html')
@@ -284,7 +269,13 @@ class LyricsHtml(Resource):
         try:
             # Generate the HTML using the utility function
             lyrics_html = generate_lyrics_page_html(song_data)
-            return lyrics_html, 200, {'Content-Type': 'text/html; charset=utf-8'}
+
+            # CRITICAL FIX: Use make_response to create a proper response object
+            # and set its content_type. This bypasses Flask-RESTx's serialization
+            # and ensures the string is returned as raw HTML.
+            resp = make_response(lyrics_html)
+            resp.content_type = 'text/html; charset=utf-8'
+            return resp
         except Exception as e:
             current_app.logger.error(f"Error generating HTML for song {song_id}: {e}", exc_info=True)
             api.abort(500, "Internal Server Error generating lyrics HTML.")

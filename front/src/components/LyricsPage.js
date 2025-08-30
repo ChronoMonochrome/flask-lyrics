@@ -41,7 +41,10 @@ const LyricsPage = () => {
                 setLyricsHtml(null); // Clear previous lyrics
                 try {
                     const html = await getSongLyricsHtml(selectedSongId);
-                    setLyricsHtml(html);
+
+                    // FIX: Decode the HTML string to resolve Unicode escapes
+                    const decodedHtml = unescape(html);
+                    setLyricsHtml(decodedHtml);
                 } catch (err) {
                     setError(t('lyrics_fetch_html_error'));
                 } finally {

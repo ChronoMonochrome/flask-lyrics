@@ -7,7 +7,7 @@ export const setNavigateFunction = (navigate) => {
     navigateRef = navigate;
 };
 
-const API_BASE_URL = 'https://japaneseapp.ignorelist.com/api';
+const API_BASE_URL = 'https://japaneseriddle.ignorelist.com/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -58,6 +58,11 @@ export const loginUser = async (username, password) => {
 
 export const registerUser = async (username, password, email) => {
     const response = await api.post('/auth/register', { username, password, email });
+    return response.data;
+};
+
+export const getUserProfile = async (axiosConfig = {}) => {
+    const response = await api.get('/auth/user_profile', axiosConfig);
     return response.data;
 };
 

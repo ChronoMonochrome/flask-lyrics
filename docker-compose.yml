@@ -43,29 +43,6 @@ services:
       # Connect to the custom application network
       - app_network
 
-  # Nginx Proxy Service
-  nginx:
-    env_file:
-      - ./.env
-    build:
-      context: . # Build context is the current directory
-      dockerfile: Dockerfile.nginx # Use the Dockerfile.nginx to build this service's image
-    container_name: nginx_proxy_japanese_riddle
-    restart: always # Always restart the container if it stops
-    ports:
-      # Map host ports 8081 and 8444 to container ports 80 and 443
-      - "8081:80"
-      - "8444:443"
-    volumes:
-      # Mount SSL certificates from your host machine into the Nginx container.
-      - ./certs:/etc/nginx/certs:ro # :ro makes it read-only inside the container
-    depends_on:
-      # Ensure the web service is up before starting Nginx
-      - web
-    networks:
-      # Connect to the custom application network
-      - app_network
-
 volumes:
   # Define named volume for database persistence
   db_data:

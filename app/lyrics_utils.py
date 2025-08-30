@@ -1,3 +1,4 @@
+from typing import Any, List, Dict
 import re
 import os
 import json
@@ -53,20 +54,6 @@ def link_japanese_words(text_html: str) -> str:
     return linked_html
 
 
-def generate_vocabulary_html(vocabulary_list: List[Dict[str, str]]) -> str:
-    """Generates the HTML for the vocabulary section."""
-    vocab_html = ""
-    for item in vocabulary_list:
-        # Link the vocabulary word itself
-        linked_word = f'<a href="/words/{item["word"]}" class="japanese-word-link hover:underline text-blue-700">{item["word"]} ({item["reading"]})</a>'
-        vocab_html += f"""
-        <div class="bg-gray-50 p-4 rounded-md shadow-sm">
-            <h4 class="text-xl font-semibold mb-2">{linked_word}</h4>
-            <p class="text-gray-700">{item["translation"]}</p>
-        </div>
-        """
-    return vocab_html
-
 def generate_lyrics_page_html(song_data: Dict[str, Any]) -> str:
     """
     Generates the full HTML content for a song's lyrics page.
@@ -90,18 +77,40 @@ def generate_lyrics_page_html(song_data: Dict[str, Any]) -> str:
     # so we only return the internal HTML content here.
     return f"""
     <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-4xl font-bold mb-2 text-center">{title}</h1>
-        <h2 class="text-2xl text-gray-600 mb-8 text-center">{artist}</h2>
+       <h1 class="text-4xl font-bold mb-2 text-center">{title}</h1>
+       <h2 class="text-2xl text-gray-600 mb-8 text-center">{artist}</h2>
 
-        <div id="lyrics-container" class="text-lg leading-relaxed">
-            {lyrics_content_html}
-        </div>
+       <div id="lyrics-container" class="text-lg leading-relaxed">
+           {lyrics_content_html}
+       </div>
 
-        <div class="mt-12 pt-8 border-t border-gray-300">
-            <h3 class="text-2xl font-semibold mb-4">Vocabulary (N5-N4)</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vocabulary_html}
-            </div>
-        </div>
+       <div class="mt-12 pt-8 border-t border-gray-300">
+           <h3 class="text-2xl font-semibold mb-4">Vocabulary (N5-N4)</h3>
+           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               {vocabulary_html}
+           </div>
+       </div>
     </div>
     """
+
+def generate_vocabulary_html(vocabulary_list: List[Dict[str, str]]) -> str:
+    """Generates the HTML for the vocabulary section."""
+    vocab_html = ""
+    for item in vocabulary_list:
+        # Use .get() to safely access 'reading' with a default value of ''
+        word = item.get("word", "")
+        reading = item.get("reading", "")
+        translation = item.get("translation", "")
+
+        # Format the display string to handle cases with or without a reading
+        display_text = f'{word} ({reading})' if reading else word
+
+        # Link the vocabulary word itself
+        linked_word = f'<a href="/words/{word}" class="japanese-word-link hover:underline text-blue-700">{display_text}</a>'
+        vocab_html += f"""
+        <div class="bg-gray-50 p-4 rounded-md shadow-sm">
+            <h4 class="text-xl font-semibold mb-2">{linked_word}</h4>
+            <p class="text-gray-700">{translation}</p>
+        </div>
+        """
+    return vocab_html
