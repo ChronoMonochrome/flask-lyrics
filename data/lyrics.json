@@ -865,7 +865,7 @@
                         "ruby": [
                             {
                                 "kanji": "明日",
-                                "furigana": "あした"
+                                "furigana": "あす"
                             }
                         ]
                     },
@@ -1009,7 +1009,11 @@
                     },
                     "な",
                     {
-                        "text": "1ページ I believe a memory",
+                        "text": "1ページ",
+                        "class": "katakana"
+                    },
+                    {
+                        "text": " I believe a memory",
                         "class": "english"
                     }
                 ],
