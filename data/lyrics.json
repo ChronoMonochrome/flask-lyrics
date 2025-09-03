@@ -211,7 +211,11 @@
                     },
                     "な",
                     {
-                        "text": "1ページ I believe a memory",
+                        "text": "1ページ",
+                        "class": "katakana"
+                    },
+                    {
+                        "text": " I believe a memory",
                         "class": "english"
                     }
                 ],
@@ -521,7 +525,7 @@
                     "の",
                     {
                         "text": "ストーリー",
-                        "class": "english"
+                        "class": "katakana"
                     },
                     " ",
                     {
