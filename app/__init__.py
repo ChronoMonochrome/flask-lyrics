@@ -19,6 +19,8 @@ LYRICS_DATA = {}
 # Global variable for the words database instance
 WORDS_DB_INSTANCE = None
 
+VOCABULARY_DATA = {}
+
 def create_app():
     """
     Application factory function for creating and configuring the Flask app.
@@ -70,6 +72,19 @@ def create_app():
 
     # 4. Application-specific Initialization (needs app context for logger, etc.)
     with app.app_context():
+        vocab_file_path = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'vocabulary.json')
+        try:
+            with open(vocab_file_path, 'r', encoding='utf-8') as f:
+                global VOCABULARY_DATA
+                VOCABULARY_DATA = json.load(f)
+            app.logger.info(f"Loaded {vocab_file_path}")
+        except FileNotFoundError:
+            app.logger.error(f"Vocab file not found: {vocab_file_path}")
+        except json.JSONDecodeError as e:
+            app.logger.error(f"Error decoding vocab JSON from {vocab_file_path}: {e}")
+        except Exception as e:
+            app.logger.error(f"An unexpected error occurred loading vocab data: {e}")
+
         # --- Load lyrics data ---
         lyrics_file_path = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'lyrics.json')
         try:

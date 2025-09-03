@@ -1,0 +1,286 @@
+[
+    {
+        "word": "宇宙",
+        "reading": "うちゅう",
+        "translation": "<span class='cyrillic'>Космос, вселенная</span> (uchuu)"
+    },
+    {
+        "word": "星",
+        "reading": "ほし",
+        "translation": "<span class='cyrillic'>Звезда</span> (hoshi)"
+    },
+    {
+        "word": "出逢う",
+        "reading": "であう",
+        "translation": "<span class='cyrillic'>Встречаться, натолкнуться</span> (deau) - обычно означает случайную или неожиданную встречу."
+    },
+    {
+        "word": "奇跡",
+        "reading": "きせき",
+        "translation": "<span class='cyrillic'>Чудо</span> (kiseki) - невероятное, необъяснимое событие."
+    },
+    {
+        "word": "今",
+        "reading": "いま",
+        "translation": "<span class='cyrillic'>Сейчас</span> (ima)"
+    },
+    {
+        "word": "感じる",
+        "reading": "かんじる",
+        "translation": "<span class='cyrillic'>Чувствовать</span> (kanjiru) - испытывать что-либо органами чувств или эмоционально."
+    },
+    {
+        "word": "胸",
+        "reading": "むね",
+        "translation": "<span class='cyrillic'>Грудь</span> (mune) - часть тела, где находится сердце; также может означать 'чувства', 'сердце' в переносном смысле."
+    },
+    {
+        "word": "全て",
+        "reading": "すべて",
+        "translation": "<span class='cyrillic'>Всё, полностью</span> (subete) - целиком, без остатка."
+    },
+    {
+        "word": "笑顔",
+        "reading": "えがお",
+        "translation": "<span class='cyrillic'>Улыбка</span> (egao) - выражение лица, показывающее радость или удовольствие."
+    },
+    {
+        "word": "涙",
+        "reading": "なみだ",
+        "translation": "<span class='cyrillic'>Слезы</span> (namida)"
+    },
+    {
+        "word": "夕暮れ",
+        "reading": "ゆうぐれ",
+        "translation": "<span class='cyrillic'>Сумерки, закат</span> (yuugure) "
+    },
+    {
+        "word": "風",
+        "reading": "かぜ",
+        "translation": "<span class='cyrillic'>Ветер</span> (kaze)"
+    },
+    {
+        "word": "途切れる",
+        "reading": "とぎれる",
+        "translation": "<span class='cyrillic'>Прерываться, обрываться</span> (togireru) - переставать или останавливаться на некоторое время."
+    },
+    {
+        "word": "言葉",
+        "reading": "ことば",
+        "translation": "<span class='cyrillic'>Слово</span> (kotoba)."
+    },
+    {
+        "word": "大切",
+        "reading": "たいせつ",
+        "translation": "<span class='cyrillic'>Важный, ценный</span> (taisetsu) - имеющий большое значение, дорогой."
+    },
+    {
+        "word": "目",
+        "reading": "め",
+        "translation": "<span class='cyrillic'>Глаз</span> (me) "
+    },
+    {
+        "word": "見えない",
+        "reading": "みえない",
+        "translation": "<span class='cyrillic'>Невидимый</span> (mienai)"
+    },
+    {
+        "word": "羽",
+        "reading": "はね",
+        "translation": "<span class='cyrillic'>Крыло, перо</span> (hane) "
+    },
+    {
+        "word": "悲しみ",
+        "reading": "かなしみ",
+        "translation": "<span class='cyrillic'>Грусть, печаль</span> (kanashimi) "
+    },
+    {
+        "word": "涙色",
+        "reading": "なみだいろ",
+        "translation": "<span class='cyrillic'>Цвет слез, печальный цвет</span> (namidairo) - обычно означает тусклый, серый, или голубоватый цвет, ассоциирующийся с грустью."
+    },
+    {
+        "word": "夢",
+        "reading": "ゆめ",
+        "translation": "<span class='cyrillic'>Мечта, сон</span> (yume) - что-то, что очень хочется осуществить; или то, что видится во сне."
+    },
+    {
+        "word": "信じる",
+        "reading": "しんじる",
+        "translation": "<span class='cyrillic'>Верить</span> (shinjiru) - считать что-то правдивым или существующим."
+    },
+    {
+        "word": "空",
+        "reading": "そら",
+        "translation": "<span class='cyrillic'>Небо</span> (sora)"
+    },
+    {
+        "word": "高く",
+        "reading": "たかく",
+        "translation": "<span class='cyrillic'>Высоко</span> (takaku)"
+    },
+    {
+        "word": "突き抜ける",
+        "reading": "つきぬける",
+        "translation": "<span class='cyrillic'>Прорываться насквозь, пронзать</span> (tsukinukeru) "
+    },
+    {
+        "word": "光",
+        "reading": "ひかり",
+        "translation": "<span class='cyrillic'>Свет</span> (hikari)"
+    },
+    {
+        "word": "遥かなる",
+        "reading": "はるかなる",
+        "translation": "<span class='cyrillic'>Далекий</span> (harukanaru) "
+    },
+    {
+        "word": "時",
+        "reading": "とき",
+        "translation": "<span class='cyrillic'>Время</span> (toki) - продолжительность, момент."
+    },
+    {
+        "word": "二人",
+        "reading": "ふたり",
+        "translation": "<span class='cyrillic'>Двое людей</span> (futari)"
+    },
+    {
+        "word": "導く",
+        "reading": "みちびく",
+        "translation": "<span class='cyrillic'>Вести, направлять</span> (michibiku) - показывать путь, руководить."
+    },
+    {
+        "word": "迷い",
+        "reading": "まよい",
+        "translation": "<span class='cyrillic'>Сомнение, заблуждение</span> (mayoi) - состояние неопределенности или потерянности."
+    },
+    {
+        "word": "霧",
+        "reading": "きり",
+        "translation": "<span class='cyrillic'>Туман</span> (kiri) "
+    },
+    {
+        "word": "越えて行く",
+        "reading": "こえていく",
+        "translation": "<span class='cyrillic'>Переходить, преодолевать</span> (koete iku) - двигаться за пределы чего-либо, справляться с трудностями."
+    },
+    {
+        "word": "世界",
+        "reading": "せかい",
+        "translation": "<span class='cyrillic'>Мир</span> (sekai)"
+    },
+    {
+        "word": "沢山",
+        "reading": "たくさん",
+        "translation": "<span class='cyrillic'>Много</span> (takusan) "
+    },
+    {
+        "word": "描く",
+        "reading": "えがく",
+        "translation": "<span class='cyrillic'>Рисовать, описывать</span> (egaku) - создавать изображение; также в значении 'представлять', 'воображать'."
+    },
+    {
+        "word": "窓辺",
+        "reading": "まどべ",
+        "translation": "<span class='cyrillic'>Подоконник</span> (madobe)"
+    },
+    {
+        "word": "片隅",
+        "reading": "かたすみ",
+        "translation": "<span class='cyrillic'>Угол, закоулок</span> (katasumi) "
+    },
+    {
+        "word": "落書き",
+        "reading": "らくがき",
+        "translation": "<span class='cyrillic'>Каракули, граффити</span> (rakugaki) - небрежные рисунки или надписи."
+    },
+    {
+        "word": "無邪気",
+        "reading": "むじゃき",
+        "translation": "<span class='cyrillic'>Наивный, невинный</span> (mujakki) - простой, без хитрости или зла."
+    },
+    {
+        "word": "瞳",
+        "reading": "ひとみ",
+        "translation": "<span class='cyrillic'>Зрачок, глаз</span> (hitomi) - зрачок глаза; также может использоваться как поэтическое название глаза."
+    },
+    {
+        "word": "願い",
+        "reading": "ねがい",
+        "translation": "<span class='cyrillic'>Желание</span> (negai)"
+    },
+    {
+        "word": "誓う",
+        "reading": "ちかう",
+        "translation": "<span class='cyrillic'>Клясться, обещать</span> (chikau) - давать торжественное обещание."
+    },
+    {
+        "word": "かけら",
+        "translation": "<span class='cyrillic'>Осколок, кусочек</span> (kakera) - маленькая часть чего-либо разбитого или целого."
+    },
+    {
+        "word": "雨",
+        "reading": "あめ",
+        "translation": "<span class='cyrillic'>Дождь</span> (ame)"
+    },
+    {
+        "word": "打たれる",
+        "reading": "うたれる",
+        "translation": "<span class='cyrillic'>Быть битым, подвергаться (дождю, ветру)</span> (utareru) - быть подверженным воздействию чего-либо."
+    },
+    {
+        "word": "花",
+        "reading": "はな",
+        "translation": "<span class='cyrillic'>Цветок</span> (hana)"
+    },
+    {
+        "word": "輝き",
+        "reading": "かがやき",
+        "translation": "<span class='cyrillic'>Сияние, блеск</span> (kagayaki) - яркий свет."
+    },
+    {
+        "word": "まとう",
+        "reading": "まとう",
+        "translation": "<span class='cyrillic'>Одевать, окутывать</span> (matou) - покрывать себя чем-либо, облачаться."
+    },
+    {
+        "word": "力",
+        "reading": "ちから",
+        "translation": "<span class='cyrillic'>Сила</span> (chikara) - физическая или духовная мощь."
+    },
+    {
+        "word": "勇気",
+        "reading": "ゆうき",
+        "translation": "<span class='cyrillic'>Смелость, мужество</span> (yuuki)"
+    },
+    {
+        "word": "道",
+        "reading": "みち",
+        "translation": "<span class='cyrillic'>Дорога, путь</span> (michi) - путь для передвижения."
+    },
+    {
+        "word": "先",
+        "reading": "さき",
+        "translation": "<span class='cyrillic'>Впереди, будущее</span> (saki)"
+    },
+    {
+        "word": "場所",
+        "reading": "ばしょ",
+        "translation": "<span class='cyrillic'>Место</span> (basho)"
+    },
+    {
+        "word": "溢れる",
+        "reading": "あふれる",
+        "translation": "<span class='cyrillic'>Переполнять, литься через край</span> (afureru) - быть в избытке."
+    },
+    {
+        "word": "想い",
+        "reading": "おもい",
+        "translation": "<span class='cyrillic'>Мысль, чувство, желание</span> (omoi) - глубокие чувства или размышления."
+    },
+    {
+        "word": "明日",
+        "reading": "あした",
+        "translation": "<span class='cyrillic'>Завтра</span> (ashita) - следующий день."
+    }
+]

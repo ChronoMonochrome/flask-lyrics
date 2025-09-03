@@ -34,7 +34,7 @@ from dotenv import load_dotenv
 
 from .lyrics_utils import generate_lyrics_page_html
 
-from . import LYRICS_DATA, get_words_db
+from . import LYRICS_DATA, VOCABULARY_DATA, get_words_db
 
 api_bp = Blueprint('api', __name__)
 
@@ -268,7 +268,7 @@ class LyricsHtml(Resource):
 
         try:
             # Generate the HTML using the utility function
-            lyrics_html = generate_lyrics_page_html(song_data)
+            lyrics_html = generate_lyrics_page_html(song_data, VOCABULARY_DATA)
 
             # CRITICAL FIX: Use make_response to create a proper response object
             # and set its content_type. This bypasses Flask-RESTx's serialization

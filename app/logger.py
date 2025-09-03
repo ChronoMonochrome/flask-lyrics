@@ -144,7 +144,7 @@ logger = CustomLogger(source="japanese.riddle", log_to_file=True, log_to_console
 # --- Configure SQLAlchemy logging to use your CustomLogger's file handler ---
 sqlalchemy_logger = logging.getLogger('sqlalchemy.engine.Engine')
 # Set level to INFO or DEBUG based on Config.DEBUG
-sqlalchemy_logger.setLevel(logging.INFO if not True else logging.DEBUG)
+sqlalchemy_logger.setLevel(logging.DEBUG if not True else logging.DEBUG)
 
 # Add the file handler from your main logger instance to the SQLAlchemy logger.
 # This ensures SQLAlchemy logs go to the same file.
