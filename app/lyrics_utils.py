@@ -19,6 +19,7 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
             # A structured token for a word
             text = token.get("text")
             ruby_data = token.get("ruby")
+            link_data = token.get("link")
 
             inner_html = ""
             lookup_word = ""
@@ -27,11 +28,11 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
                 inner_html += "<ruby>"
                 for part in ruby_data:
                     inner_html += f'<rb class="kanji">{part["kanji"]}</rb><rt class="furigana">{part["furigana"]}</rt>'
-                    lookup_word += part.get("kanji") or ""
                 inner_html += "</ruby>"
+                lookup_word = link_data or ""
             elif text:
                 inner_html += f'<span class="text">{text}</span>'
-                lookup_word = text
+                lookup_word = link_data or text
 
             tooltip_html = ""
             vocab_entry = None
