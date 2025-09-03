@@ -17,3 +17,4 @@ Flask-RESTx==1.1.0
 Flask-JWT-Extended==4.3.0
 Werkzeug==2.3.7 # Ensure compatibility with Flask 2.3.x
 flask_migrate
+fugashi[unidic-lite]

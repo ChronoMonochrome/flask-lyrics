@@ -1,7 +1,19 @@
 from typing import Any, List, Dict
 import os
 import json
-from . import get_words_db  # Assuming api.py is in the same package
+from . import get_words_db
+from fugashi import Tagger
+
+def get_base_form(text: str) -> str:
+    """
+    Finds the base form of a Japanese verb or adjective using Fugashi.
+    """
+    tagger = Tagger()
+    for word in tagger(text):
+        # The 7th element (index 6) in the feature is the base form
+        if '動詞' in word.feature or '形容詞' in word.feature:
+            return word.feature[6]
+    return None
 
 def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[str, str]]) -> str:
     """
@@ -10,6 +22,9 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
     """
     html_parts = []
     words_db = get_words_db()
+
+    # Create a base word version of the vocabulary map for base form lookups
+    vocabulary_katakana_map = {get_base_form(k): v for k, v in vocabulary_map.items()}
 
     for token in tokens:
         if isinstance(token, str):
@@ -44,15 +59,33 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
                     translation = vocab_entry.get("translation", "")
                     word_text = vocab_entry.get("word", "")
                 else:
-                    # If not in the local vocabulary, perform a server-side lookup
-                    results = words_db.get_words(lookup_word)
-                    if results:
-                        entry = results[0]
-                        word_text = entry.get('k', [''])[0] or entry.get('r', [''])[0]
-                        translation = ""
-                        senses = entry.get('s', [])
-                        if senses and 'g' in senses[0]:
-                            translation = senses[0]['g'][0]
+                    # If not in the local vocabulary, try to find the base form
+                    base_word = get_base_form(lookup_word)
+                    if base_word:
+                        vocab_entry = vocabulary_katakana_map.get(base_word)
+                        if vocab_entry:
+                            translation = vocab_entry.get("translation", "")
+                            word_text = vocab_entry.get("word", "")
+                        else:
+                            # If the base form isn't in vocabulary.json, perform a server-side lookup
+                            results = words_db.get_words(base_word)
+                            if results:
+                                entry = results[0]
+                                word_text = entry.get('k', [''])[0] or entry.get('r', [''])[0]
+                                translation = ""
+                                senses = entry.get('s', [])
+                                if senses and 'g' in senses[0]:
+                                    translation = senses[0]['g'][0]
+                    else:
+                        # If a base form cannot be found, perform server-side lookup with original word
+                        results = words_db.get_words(lookup_word)
+                        if results:
+                            entry = results[0]
+                            word_text = entry.get('k', [''])[0] or entry.get('r', [''])[0]
+                            translation = ""
+                            senses = entry.get('s', [])
+                            if senses and 'g' in senses[0]:
+                                translation = senses[0]['g'][0]
 
             if vocab_entry or (lookup_word and results):
                 tooltip_html = f"""
