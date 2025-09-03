@@ -35,6 +35,7 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
             text = token.get("text")
             ruby_data = token.get("ruby")
             link_data = token.get("link")
+            extra_class = token.get("class", "")
 
             inner_html = ""
             lookup_word = ""
@@ -100,7 +101,13 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
                 </div>
                 """
 
-            word_html = f'<span class="word-link" data-word="{lookup_word}">{inner_html}{tooltip_html}</span>'
+            # Build the class string, including the extra class if it exists
+            class_list = ["word-link"]
+            if extra_class:
+                class_list.append(extra_class)
+            class_str = " ".join(class_list)
+
+            word_html = f'<span class="{class_str}" data-word="{lookup_word}">{inner_html}{tooltip_html}</span>'
             html_parts.append(word_html)
 
     return "".join(html_parts)
