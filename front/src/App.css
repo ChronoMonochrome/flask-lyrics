@@ -232,3 +232,122 @@ rp {
 .text-gray-700 .cyrillic {
   font-family: 'Open Sans', 'Noto Sans', Arial, sans-serif !important;
 }
+
+
+/* Basic Page and Container Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+  font-weight: 500;
+}
+
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Lyric and Word Styles */
+#lyrics-container {
+font-size: 1.25rem;
+line-height: 2.5rem;
+}
+
+.lyric-line {
+  margin-bottom: 1.5rem;
+}
+
+/* Japanese Word with Tooltip Container */
+.japanese-word {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.japanese-word:hover {
+  border-bottom: 2px solid #bee0f1;
+}
+
+
+
+rt.furigana {
+  font-size: 0.75rem;
+
+  line-height: 1;
+}
+
+rb.kanji {
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+}
+
+/* English text within lyrics */
+.english {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+}
+
+/* Tooltip Styles */
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 150%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  min-width: 250px;
+  padding: 10px;
+  white-space: normal;
+  text-align: left;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.tooltip-reading {
+  font-size: 1rem;
+  color: #0077ea;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tooltip-translation {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* The magic: show the tooltip on hover */
+.japanese-word:hover .tooltip {
+  visibility: visible;
+}
