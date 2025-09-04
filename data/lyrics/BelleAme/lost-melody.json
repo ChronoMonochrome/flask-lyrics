@@ -1,0 +1,553 @@
+{
+    "songs": [
+        {
+            "id": "lost-melody-belle-ame",
+            "title": "Lost Melody",
+            "artist": "Belle Ame",
+            "lyrics": [
+                [
+                    {
+                        "link": "心",
+                        "ruby": [
+                            {
+                                "kanji": "心",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "から",
+                    {
+                        "link": "歌え",
+                        "ruby": [
+                            {
+                                "kanji": "歌え",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "ない",
+                    "なら"
+                ],
+                [
+                    "なん",
+                    "の",
+                    {
+                        "link": "為",
+                        "ruby": [
+                            {
+                                "kanji": "為",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    {
+                        "link": "歌",
+                        "ruby": [
+                            {
+                                "kanji": "歌",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "な",
+                    "ん",
+                    "だろう"
+                ],
+                [
+                    {
+                        "link": "君",
+                        "ruby": [
+                            {
+                                "kanji": "君",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "は",
+                    "まだ",
+                    {
+                        "link": "消え",
+                        "ruby": [
+                            {
+                                "kanji": "消え",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "ない",
+                    "まま",
+                    "で"
+                ],
+                [
+                    {
+                        "link": "今",
+                        "ruby": [
+                            {
+                                "kanji": "今",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "で",
+                    "も",
+                    {
+                        "link": "強く",
+                        "ruby": [
+                            {
+                                "kanji": "強く",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ],
+                [],
+                [
+                    {
+                        "link": "星",
+                        "ruby": [
+                            {
+                                "kanji": "星",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "が",
+                    {
+                        "link": "降る",
+                        "ruby": [
+                            {
+                                "kanji": "降る",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    {
+                        "link": "街角",
+                        "ruby": [
+                            {
+                                "kanji": "街角",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "で"
+                ],
+                [
+                    {
+                        "link": "僕",
+                        "ruby": [
+                            {
+                                "kanji": "僕",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "は",
+                    {
+                        "link": "今日",
+                        "ruby": [
+                            {
+                                "kanji": "今日",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "も",
+                    {
+                        "link": "歌っ",
+                        "ruby": [
+                            {
+                                "kanji": "歌っ",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "てる"
+                ],
+                [
+                    {
+                        "link": "道",
+                        "ruby": [
+                            {
+                                "kanji": "道",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "に",
+                    {
+                        "link": "書い",
+                        "ruby": [
+                            {
+                                "kanji": "書い",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "た",
+                    "メロディ"
+                ],
+                [
+                    {
+                        "link": "空",
+                        "ruby": [
+                            {
+                                "kanji": "空",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "に",
+                    {
+                        "link": "舞い上がれ",
+                        "ruby": [
+                            {
+                                "kanji": "舞い上がれ",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ],
+                [],
+                [
+                    {
+                        "link": "風",
+                        "ruby": [
+                            {
+                                "kanji": "風",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    {
+                        "link": "中",
+                        "ruby": [
+                            {
+                                "kanji": "中",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "で",
+                    {
+                        "link": "聞こえる",
+                        "ruby": [
+                            {
+                                "kanji": "聞こえる",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "Love",
+                    " ",
+                    "song"
+                ],
+                [
+                    {
+                        "link": "雲",
+                        "ruby": [
+                            {
+                                "kanji": "雲",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    "Stage",
+                    " ",
+                    "Ne",
+                    "on",
+                    "の",
+                    "Dance"
+                ],
+                [
+                    {
+                        "link": "君",
+                        "ruby": [
+                            {
+                                "kanji": "君",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    {
+                        "link": "為",
+                        "ruby": [
+                            {
+                                "kanji": "為",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "に",
+                    {
+                        "link": "祈り",
+                        "ruby": [
+                            {
+                                "kanji": "祈り",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "を",
+                    {
+                        "link": "込め",
+                        "ruby": [
+                            {
+                                "kanji": "込め",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "て"
+                ],
+                [
+                    {
+                        "link": "僕",
+                        "ruby": [
+                            {
+                                "kanji": "僕",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "は",
+                    {
+                        "link": "歌い",
+                        "ruby": [
+                            {
+                                "kanji": "歌い",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    {
+                        "link": "続ける",
+                        "ruby": [
+                            {
+                                "kanji": "続ける",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ],
+                [],
+                [
+                    {
+                        "link": "心",
+                        "ruby": [
+                            {
+                                "kanji": "心",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "から",
+                    {
+                        "link": "歌え",
+                        "ruby": [
+                            {
+                                "kanji": "歌え",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "ない",
+                    "なら"
+                ],
+                [
+                    {
+                        "link": "何",
+                        "ruby": [
+                            {
+                                "kanji": "何",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    {
+                        "link": "為",
+                        "ruby": [
+                            {
+                                "kanji": "為",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    {
+                        "link": "歌",
+                        "ruby": [
+                            {
+                                "kanji": "歌",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "な",
+                    "ん",
+                    "だろう"
+                ],
+                [
+                    {
+                        "link": "君",
+                        "ruby": [
+                            {
+                                "kanji": "君",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "は",
+                    "まだ",
+                    {
+                        "link": "消え",
+                        "ruby": [
+                            {
+                                "kanji": "消え",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "ない",
+                    "まま",
+                    "で"
+                ],
+                [
+                    {
+                        "link": "今",
+                        "ruby": [
+                            {
+                                "kanji": "今",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "で",
+                    "も",
+                    {
+                        "link": "強く",
+                        "ruby": [
+                            {
+                                "kanji": "強く",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "link": "終わり",
+                        "ruby": [
+                            {
+                                "kanji": "終わり",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "なき",
+                    {
+                        "link": "追憶",
+                        "ruby": [
+                            {
+                                "kanji": "追憶",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "の",
+                    {
+                        "link": "日々",
+                        "ruby": [
+                            {
+                                "kanji": "日々",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "link": "君",
+                        "ruby": [
+                            {
+                                "kanji": "君",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "は",
+                    {
+                        "link": "星",
+                        "ruby": [
+                            {
+                                "kanji": "星",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "に",
+                    "なっ",
+                    "た",
+                    "ん",
+                    "だろう"
+                ],
+                [
+                    "この",
+                    {
+                        "link": "言葉",
+                        "ruby": [
+                            {
+                                "kanji": "言葉",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    {
+                        "link": "切ない",
+                        "ruby": [
+                            {
+                                "kanji": "切ない",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    {
+                        "link": "思い",
+                        "ruby": [
+                            {
+                                "kanji": "思い",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "link": "君",
+                        "ruby": [
+                            {
+                                "kanji": "君",
+                                "furigana": ""
+                            }
+                        ]
+                    },
+                    "まで",
+                    {
+                        "link": "届け",
+                        "ruby": [
+                            {
+                                "kanji": "届け",
+                                "furigana": ""
+                            }
+                        ]
+                    }
+                ]
+            ]
+        }
+    ]
+}

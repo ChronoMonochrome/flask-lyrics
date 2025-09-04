@@ -282,5 +282,225 @@
         "word": "明日",
         "reading": "あした",
         "translation": "<span class='cyrillic'>Завтра</span> (ashita) - следующий день."
+    },
+    {
+        "word": "から",
+        "reading": "から",
+        "translation": "из, от; с (указывает на источник или начальную точку)"
+    },
+    {
+        "word": "が",
+        "reading": "が",
+        "translation": "но; частица-субъект"
+    },
+    {
+        "word": "この",
+        "reading": "この",
+        "translation": "этот"
+    },
+    {
+        "word": "だろう",
+        "reading": "だろう",
+        "translation": "вероятно; вероятно, это так"
+    },
+    {
+        "word": "で",
+        "reading": "で",
+        "translation": "частица места (в), инструмента (с помощью), средства (по)"
+    },
+    {
+        "word": "なら",
+        "reading": "なら",
+        "translation": "если"
+    },
+    {
+        "word": "なん",
+        "reading": "なん",
+        "translation": "что"
+    },
+    {
+        "word": "に",
+        "reading": "に",
+        "translation": "частица места (в), направления (к), цели (для)"
+    },
+    {
+        "word": "の",
+        "reading": "の",
+        "translation": "частица принадлежности (чей)"
+    },
+    {
+        "word": "は",
+        "reading": "は",
+        "translation": "тематическая частица"
+    },
+    {
+        "word": "まだ",
+        "reading": "まだ",
+        "translation": "ещё"
+    },
+    {
+        "word": "まで",
+        "reading": "まで",
+        "translation": "до"
+    },
+    {
+        "word": "まま",
+        "reading": "まま",
+        "translation": "как есть; в неизменном состоянии"
+    },
+    {
+        "word": "も",
+        "reading": "も",
+        "translation": "тоже, и; даже"
+    },
+    {
+        "word": "を",
+        "reading": "を",
+        "translation": "частица, указывающая на прямое дополнение"
+    },
+    {
+        "word": "メロディ",
+        "reading": "メロディ",
+        "translation": "мелодия"
+    },
+    {
+        "word": "中",
+        "reading": "なか",
+        "translation": "внутри, среди"
+    },
+    {
+        "word": "今日",
+        "reading": "きょう",
+        "translation": "сегодня"
+    },
+    {
+        "word": "何",
+        "reading": "なん",
+        "translation": "что"
+    },
+    {
+        "word": "僕",
+        "reading": "ぼく",
+        "translation": "я (мужской род)"
+    },
+    {
+        "word": "切ない",
+        "reading": "せつない",
+        "translation": "мучительный; болезненный; тоскливый"
+    },
+    {
+        "word": "君",
+        "reading": "きみ",
+        "translation": "ты"
+    },
+    {
+        "word": "届け",
+        "reading": "とどけ",
+        "translation": "донести, доставить; пусть достигнет (повелительное наклонение)"
+    },
+    {
+        "word": "強く",
+        "reading": "つよく",
+        "translation": "сильно"
+    },
+    {
+        "word": "心",
+        "reading": "こころ",
+        "translation": "сердце; душа"
+    },
+    {
+        "word": "思い",
+        "reading": "おもい",
+        "translation": "чувство; мысль; желание"
+    },
+    {
+        "word": "日々",
+        "reading": "ひび",
+        "translation": "дни"
+    },
+    {
+        "word": "書い",
+        "reading": "かい",
+        "translation": "написал (форма на 'i' от глагола 書く)"
+    },
+    {
+        "word": "歌",
+        "reading": "うた",
+        "translation": "песня"
+    },
+    {
+        "word": "歌い",
+        "reading": "うたい",
+        "translation": "петь (форма на 'i' от глагола 歌う)"
+    },
+    {
+        "word": "歌え",
+        "reading": "うたえ",
+        "translation": "петь (потенциальная форма)"
+    },
+    {
+        "word": "歌っ",
+        "reading": "うたっ",
+        "translation": "пел (форма на 't' от глагола 歌う)"
+    },
+    {
+        "word": "消え",
+        "reading": "きえ",
+        "translation": "исчез (форма на 'e' от глагола 消える)"
+    },
+    {
+        "word": "為",
+        "reading": "ため",
+        "translation": "для; ради"
+    },
+    {
+        "word": "祈り",
+        "reading": "いのり",
+        "translation": "молитва"
+    },
+    {
+        "word": "終わり",
+        "reading": "おわり",
+        "translation": "конец"
+    },
+    {
+        "word": "続ける",
+        "reading": "つづける",
+        "translation": "продолжать"
+    },
+    {
+        "word": "聞こえる",
+        "reading": "きこえる",
+        "translation": "слышать; быть слышимым"
+    },
+    {
+        "word": "舞い上がれ",
+        "reading": "まいあがれ",
+        "translation": "взлетай; поднимайся (повелительное наклонение)"
+    },
+    {
+        "word": "街角",
+        "reading": "まちかど",
+        "translation": "угол улицы; уличный перекресток"
+    },
+    {
+        "word": "込め",
+        "reading": "こめ",
+        "translation": "поместить; вложить (форма на 'e' от глагола 込める)"
+    },
+    {
+        "word": "追憶",
+        "reading": "ついおく",
+        "translation": "воспоминание; воспоминания о прошлом"
+    },
+    {
+        "word": "降る",
+        "reading": "ふる",
+        "translation": "падать (об осадках)"
+    },
+    {
+        "word": "雲",
+        "reading": "くも",
+        "translation": "облако"
     }
 ]

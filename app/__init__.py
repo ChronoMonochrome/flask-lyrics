@@ -85,21 +85,29 @@ def create_app():
         except Exception as e:
             app.logger.error(f"An unexpected error occurred loading vocab data: {e}")
 
-        # --- Load lyrics data ---
-        lyrics_file_path = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'lyrics.json')
-        try:
-            with open(lyrics_file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                global LYRICS_DATA
-                for song in data.get('songs', []):
-                    LYRICS_DATA[song['id']] = song
-            app.logger.info(f"Loaded {len(LYRICS_DATA)} songs from {lyrics_file_path}")
-        except FileNotFoundError:
-            app.logger.error(f"Lyrics file not found: {lyrics_file_path}")
-        except json.JSONDecodeError as e:
-            app.logger.error(f"Error decoding lyrics JSON from {lyrics_file_path}: {e}")
-        except Exception as e:
-            app.logger.error(f"An unexpected error occurred loading lyrics data: {e}")
+        # --- Load lyrics data from all JSON files in the lyrics directory ---
+        lyrics_dir_path = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'lyrics')
+        global LYRICS_DATA
+        total_songs_loaded = 0
+        if os.path.exists(lyrics_dir_path):
+            for root, dirs, files in os.walk(lyrics_dir_path):
+                for file in files:
+                    if file.endswith('.json'):
+                        file_path = os.path.join(root, file)
+                        try:
+                            with open(file_path, 'r', encoding='utf-8') as f:
+                                data = json.load(f)
+                                for song in data.get('songs', []):
+                                    LYRICS_DATA[song['id']] = song
+                                    total_songs_loaded += 1
+                            app.logger.info(f"Loaded songs from {file_path}")
+                        except json.JSONDecodeError as e:
+                            app.logger.error(f"Error decoding JSON from {file_path}: {e}")
+                        except Exception as e:
+                            app.logger.error(f"An unexpected error occurred loading data from {file_path}: {e}")
+            app.logger.info(f"Successfully loaded a total of {total_songs_loaded} songs from the lyrics directory.")
+        else:
+            app.logger.error(f"Lyrics directory not found: {lyrics_dir_path}")
 
         # --- Initialize words database ---
         # Corrected the variable name here from `FRONTEND_BUILD_ROOT_ROOT_PATH`
