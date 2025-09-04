@@ -1,7 +1,8 @@
 import json
 import re
 import argparse
-from JapaneseTokenizer import MecabWrapper
+from fugashi import Tagger
+import jaconv
 
 # A simple class to handle cases where the tokenizer fails,
 # ensuring the rest of the code doesn't break.
@@ -23,66 +24,68 @@ def has_kanji(text):
     """
     return bool(re.search(r'[\u4e00-\u9faf]', text))
 
-def tokenize_and_format_line(tokenizer, line):
+def katakana_to_hiragana(text):
     """
-    Tokenizes a single line of lyrics and formats the output
-    to match the desired JSON structure with kanji/furigana.
+    Converts katakana characters to hiragana.
     """
-    # The user's desired output format is very specific and does not always
-    # match standard tokenizer behavior. This function tokenizes the input
-    # and then manually processes the tokens to fit the required format.
-    
-    # Split the line by full-width spaces (　) to preserve them as separate tokens.
-    parts = re.split(r'(　)', line)
-    
+    return jaconv.kata2hira(text)
+
+def tokenize_and_format_line(tagger, line):
+    """
+    Tokenizes a single line of lyrics using fugashi and formats the output
+    to match the desired JSON structure with kanji and furigana.
+    """
     formatted_tokens = []
     
-    # First, get a list of tokens, converting raw strings and handling tokenizer failures.
-    all_tokens = []
-    for part in parts:
-        if not part:  # Skip empty strings that can result from re.split
-            continue
+    # Process the line with fugashi.
+    for word in tagger(line):
+        surface = word.surface
+        reading = word.feature.kana if word.feature else None
 
-        if part == '　':
-            all_tokens.append(SimpleToken(surface='　', reading=''))
-            continue
-        
-        # Try to tokenize and standardize the output.
-        try:
-            tokens_from_tokenizer = tokenizer.tokenize(part).convert_list_object()
-            for t in tokens_from_tokenizer:
-                # Check for token objects with a 'surface' attribute.
-                if hasattr(t, 'surface'):
-                    all_tokens.append(SimpleToken(surface=t.surface, reading=t.reading))
-                else:
-                    # Treat anything else as a simple string token.
-                    all_tokens.append(SimpleToken(surface=str(t), reading=''))
-        except Exception:
-            # If any exception occurs, fall back to a simple token.
-            all_tokens.append(SimpleToken(surface=part, reading=''))
-
-    # Now, all_tokens is a standardized list of SimpleToken objects.
-    formatted_tokens = []
-    for i, token in enumerate(all_tokens):
-        surface = token.surface
-        reading = token.reading
-        
-        # The rest of the logic can now run safely.
         if has_kanji(surface):
-            furigana = reading
-            kanji_text = surface
+            kanji_part = surface
+            furigana_part = ""
+            okurigana_part = ""
             
-            if i + 1 < len(all_tokens) and not has_kanji(all_tokens[i+1].surface) and all_tokens[i+1].reading:
-                if reading and reading.endswith(all_tokens[i+1].reading):
-                    furigana = reading[:-len(all_tokens[i+1].reading)]
+            if reading:
+                # Convert the full reading to hiragana.
+                hiragana_reading = katakana_to_hiragana(reading)
+                
+                # Find the longest matching suffix between the hiragana reading and the surface form.
+                # This handles Okurigana (trailing hiragana).
+                okurigana_chars = ""
+                for i in range(1, min(len(hiragana_reading), len(surface)) + 1):
+                    # Compare trailing characters.
+                    if surface[-i] == hiragana_reading[-i]:
+                        okurigana_chars = surface[-i] + okurigana_chars
+                    else:
+                        break
+                okurigana_part = okurigana_chars
+                
+                # The furigana for the kanji is the full hiragana reading minus the okurigana's reading.
+                furigana_part = hiragana_reading[:-len(okurigana_part)] if okurigana_part else hiragana_reading
+                
+                # The kanji part of the surface is the surface without the okurigana.
+                kanji_part = surface[:-len(okurigana_part)] if okurigana_part else surface
             
-            formatted_tokens.append({
-                "link": surface,
-                "ruby": [{"kanji": kanji_text, "furigana": furigana}]
-            })
+            # If there's an okurigana part, split the token into two elements.
+            if okurigana_part:
+                formatted_tokens.append({
+                    "link": kanji_part + okurigana_part,
+                    "ruby": [{"kanji": kanji_part, "furigana": furigana_part}]
+                })
+                formatted_tokens.append(okurigana_part)
+            else:
+                # If no okurigana, treat it as a single token.
+                formatted_tokens.append({
+                    "link": surface,
+                    "ruby": [{"kanji": kanji_part, "furigana": furigana_part}]
+                })
         else:
-            formatted_tokens.append(surface)
-            
+            # For non-kanji words (including English words and full-width spaces),
+            # just store the surface.
+            formatted_tokens.append({"link": surface})
+
     return formatted_tokens
 
 def extract_vocabulary(tokenized_data):
@@ -92,13 +95,11 @@ def extract_vocabulary(tokenized_data):
     vocabulary_set = set()
     for line in tokenized_data:
         for item in line:
-            if isinstance(item, dict):
+            if isinstance(item, dict) and item.get("link", "").strip():
                 word = item["link"]
-                # Concatenate all furigana parts for a full reading.
                 reading = "".join(r["furigana"] for r in item.get("ruby", []))
                 vocabulary_set.add((word, reading))
-            elif isinstance(item, str) and item.strip():
-                # Add non-kanji words.
+            elif isinstance(item, str):
                 vocabulary_set.add((item, ""))
     
     # Sort the list of dictionaries alphabetically by the 'word' key.
@@ -117,8 +118,8 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    # Initialize the tokenizer.
-    tokenizer = MecabWrapper(dictType='unidic')
+    # Initialize the fugashi tagger.
+    tagger = Tagger()
     
     # Read lyrics from the specified input file.
     with open(args.input, 'r', encoding='utf-8') as f:
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     lines = lyrics_text.strip().split('\n')
     
     # Process each line to create the tokenized lyrics structure.
-    tokenized_lyrics = [tokenize_and_format_line(tokenizer, line) for line in lines]
+    tokenized_lyrics = [tokenize_and_format_line(tagger, line) for line in lines]
     
     # Create the full lyrics data structure.
     lyrics_data = SONG_INFO.copy()
@@ -149,4 +150,4 @@ if __name__ == "__main__":
     with open(args.output_lyrics, "w", encoding="utf-8") as f:
         json.dump(final_lyrics_json, f, ensure_ascii=False, indent=4)
 
-    print(f"Successfully generated {args.output_vocab} and {args.output_lyrics} using JapaneseTokenizer.")
+    print(f"Successfully generated {args.output_vocab} and {args.output_lyrics} using fugashi.")

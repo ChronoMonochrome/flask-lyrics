@@ -40,15 +40,25 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
             inner_html = ""
             lookup_word = ""
 
+            # Determine inner HTML and lookup word based on token structure
             if ruby_data:
+                # Case 1: Token has ruby characters
                 inner_html += "<ruby>"
                 for part in ruby_data:
                     inner_html += f'<rb class="kanji">{part["kanji"]}</rb><rt class="furigana">{part["furigana"]}</rt>'
                 inner_html += "</ruby>"
                 lookup_word = link_data or ""
             elif text:
+                # Case 2: Token has text, no ruby
                 inner_html += f'<span class="text">{text}</span>'
                 lookup_word = link_data or text
+            elif link_data:
+                # Case 3: Token has a link but no ruby or text
+                inner_html += f'<span class="text">{link_data}</span>'
+                lookup_word = link_data
+            else:
+                # No relevant data, continue to next token
+                continue
 
             tooltip_html = ""
             vocab_entry = None
@@ -90,11 +100,13 @@ def generate_html_from_tokens(tokens: List[Any], vocabulary_map: Dict[str, Dict[
 
             if vocab_entry or (lookup_word and results):
                 tooltip_html = f"""
-                <div class="tooltip static">
+                <div class="tooltip">
                     <div class="tooltip-content">
-                        <span class="tooltip-heading">Word Note</span>
+                        <span class="tooltip-heading">Заметка
+                            <button class="close-tooltip">&times;</button>
+                        </span>
                         <div class="tooltip-note-body">
-                            <span class="tooltip-expression text-2xl font-bold">{word_text}</span>
+                            <span class="tooltip-expression">{word_text}</span>
                             <span class="tooltip-sense">{translation}</span>
                         </div>
                     </div>
@@ -138,14 +150,12 @@ def generate_lyrics_page_html(song_data: Dict[str, Any], vocabulary: Dict[str, A
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{title} - {artist}</title>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-        <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-gray-700 min-h-screen">
-        <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-            <h1 class="text-4xl font-bold mb-2 text-center">{title}</h1>
-            <h2 class="text-2xl text-gray-600 mb-8 text-center">{artist}</h2>
-
-            <div id="lyrics-container" class="text-lg leading-relaxed">
+    <body>
+        <div class="container">
+            <h1>{title}</h1>
+            <h2>{artist}</h2>
+            <div id="lyrics-container">
                 {lyrics_content_html}
             </div>
         </div>

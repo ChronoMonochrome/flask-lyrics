@@ -13,6 +13,37 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>React App</title>
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // This code will run after the entire document has been loaded
+    document.body.addEventListener('click', function(event) {
+        const clickedWordLink = event.target.closest('.word-link');
+
+        // First, close all tooltips
+        document.querySelectorAll('.word-link.active').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // If a word-link was clicked, open its tooltip
+        if (clickedWordLink) {
+            clickedWordLink.classList.add('active');
+            event.stopPropagation();
+        }
+    });
+
+    // Also handle closing the tooltip by clicking the 'x' button
+    document.body.addEventListener('click', function(event) {
+        const closeButton = event.target.closest('.close-tooltip');
+        if (closeButton) {
+            const parentWordLink = closeButton.closest('.word-link');
+            if (parentWordLink) {
+                parentWordLink.classList.remove('active');
+                event.stopPropagation(); // Stop the event from propagating to the body click listener
+            }
+        }
+    });
+});
+</script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
