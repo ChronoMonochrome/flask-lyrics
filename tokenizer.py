@@ -12,11 +12,7 @@ class SimpleToken:
         self.reading = reading if reading is not None else ""
 
 # The title and artist information for the lyrics.
-SONG_INFO = {
-    "id": "ribbon-toku-remix",
-    "title": "ribbon -toku (GARNiDELiA) Remix-",
-    "artist": "彩音"
-}
+SONG_INFO = {}
 
 def has_kanji(text):
     """
@@ -41,7 +37,14 @@ def tokenize_and_format_line(tagger, line):
     for word in tagger(line):
         surface = word.surface
         reading = word.feature.kana if word.feature else None
-
+        
+        # Check if the token is a single hiragana character and is an auxiliary verb, particle, etc.
+        # These are generally not meant to be separate dictionary objects.
+        if (len(surface) == 1 and
+            any(p in word.feature for p in ['助詞', '助動詞', '接尾詞'])):
+            formatted_tokens.append(surface)
+            continue
+        
         if has_kanji(surface):
             kanji_part = surface
             furigana_part = ""
@@ -115,8 +118,18 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', required=True, help='Path to the input text file containing lyrics.')
     parser.add_argument('-ov', '--output-vocab', default='vocabulary.json', help='Path to the output vocabulary JSON file.')
     parser.add_argument('-ol', '--output-lyrics', default='lyrics.json', help='Path to the output lyrics JSON file.')
+    parser.add_argument('--song-id', required=True, help='The ID of the song.')
+    parser.add_argument('--song-title', required=True, help='The title of the song.')
+    parser.add_argument('--song-artist', required=True, help='The artist of the song.')
     
     args = parser.parse_args()
+    
+    # Update SONG_INFO with command-line arguments.
+    SONG_INFO.update({
+        "id": args.song_id,
+        "title": args.song_title,
+        "artist": args.song_artist
+    })
     
     # Initialize the fugashi tagger.
     tagger = Tagger()
