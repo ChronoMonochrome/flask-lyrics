@@ -4,6 +4,17 @@ import argparse
 from fugashi import Tagger
 import jaconv
 
+def get_base_form(text: str) -> str:
+    """
+    Finds the base form of a Japanese verb or adjective using Fugashi.
+    """
+    tagger = Tagger()
+    for word in tagger(text):
+        # The 7th element (index 6) in the feature is the base form
+        if hasattr(word.feature, 'lemma'):
+            return word.feature.lemma
+    return text
+
 # A simple class to handle cases where the tokenizer fails,
 # ensuring the rest of the code doesn't break.
 class SimpleToken:
@@ -74,14 +85,14 @@ def tokenize_and_format_line(tagger, line):
             # If there's an okurigana part, split the token into two elements.
             if okurigana_part:
                 formatted_tokens.append({
-                    "link": kanji_part + okurigana_part,
+                    "link": get_base_form(kanji_part + okurigana_part),
                     "ruby": [{"kanji": kanji_part, "furigana": furigana_part}]
                 })
                 formatted_tokens.append(okurigana_part)
             else:
                 # If no okurigana, treat it as a single token.
                 formatted_tokens.append({
-                    "link": surface,
+                    "link": get_base_form(surface),
                     "ruby": [{"kanji": kanji_part, "furigana": furigana_part}]
                 })
         else:
@@ -98,13 +109,15 @@ def extract_vocabulary(tokenized_data):
     vocabulary_set = set()
     for line in tokenized_data:
         for item in line:
-            if isinstance(item, dict) and item.get("link", "").strip():
-                word = item["link"]
-                reading = "".join(r["furigana"] for r in item.get("ruby", []))
-                vocabulary_set.add((word, reading))
-            elif isinstance(item, str):
-                vocabulary_set.add((item, ""))
-    
+            try:
+                if isinstance(item, dict) and item.get("link", "").strip():
+                    word = item["link"]
+                    reading = "".join(r["furigana"] for r in item.get("ruby", []))
+                    vocabulary_set.add((word, reading))
+                elif isinstance(item, str) and len(item) != 1:
+                    vocabulary_set.add((item, ""))
+            except AttributeError:
+                pass
     # Sort the list of dictionaries alphabetically by the 'word' key.
     vocabulary_list = sorted(
         [{"word": w, "reading": r, "translation": ""} for w, r in vocabulary_set],

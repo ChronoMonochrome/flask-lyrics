@@ -285,22 +285,22 @@
     },
     {
         "word": "欲しい",
-        "reading": "欲しい",
+        "reading": "ほしい",
         "translation": "Хочу"
     },
     {
         "word": "変わる",
-        "reading": "変わる",
+        "reading": "かわる",
         "translation": "Меняться"
     },
     {
         "word": "浮かぶ",
-        "reading": "浮かぶ",
+        "reading": "うかぶ",
         "translation": "Плавать"
     },
     {
         "word": "以上",
-        "reading": "以上",
+        "reading": "いじょう",
         "translation": "Не менее, чем"
     },
     {
@@ -322,5 +322,420 @@
         "word": "中",
         "reading": "なか",
         "translation": "внутри"
+    },
+    {
+        "word": "大きい",
+        "reading": "おおきい",
+        "translation": "большой"
+    },
+    {
+        "word": "歌える",
+        "reading": "うたえる",
+        "translation": "петь (потенциальная форма)"
+    },
+    {
+        "word": "Dance",
+        "reading": "",
+        "translation": "Танец, танцевать"
+    },
+    {
+        "word": "Love",
+        "reading": "",
+        "translation": "Любовь"
+    },
+    {
+        "word": "Neon",
+        "reading": "",
+        "translation": "Неон, неоновый"
+    },
+    {
+        "word": "Stage",
+        "reading": "",
+        "translation": "Сцена, этап"
+    },
+    {
+        "word": "song",
+        "reading": "",
+        "translation": "Песня"
+    },
+    {
+        "word": "から",
+        "reading": "kara",
+        "translation": "Из, от"
+    },
+    {
+        "word": "こえる",
+        "reading": "koeru",
+        "translation": "Преодолевать, пересекать"
+    },
+    {
+        "word": "この",
+        "reading": "kono",
+        "translation": "Этот"
+    },
+    {
+        "word": "だろう",
+        "reading": "darō",
+        "translation": "Наверное, вероятно (указывает на предположение)"
+    },
+    {
+        "word": "なき",
+        "reading": "naki",
+        "translation": "Плач, плачущий"
+    },
+    {
+        "word": "なら",
+        "reading": "nara",
+        "translation": "Если"
+    },
+    {
+        "word": "なん",
+        "reading": "nan",
+        "translation": "Что, какой"
+    },
+    {
+        "word": "まだ",
+        "reading": "mada",
+        "translation": "Ещё, пока"
+    },
+    {
+        "word": "まで",
+        "reading": "made",
+        "translation": "До"
+    },
+    {
+        "word": "まま",
+        "reading": "mama",
+        "translation": "Как есть, без изменений"
+    },
+    {
+        "word": "メロディ",
+        "reading": "merodi",
+        "translation": "Мелодия"
+    },
+    {
+        "word": "今日",
+        "reading": "kyō",
+        "translation": "Сегодня"
+    },
+    {
+        "word": "何",
+        "reading": "nan",
+        "translation": "Что"
+    },
+    {
+        "word": "僕",
+        "reading": "boku",
+        "translation": "Я (мужской)"
+    },
+    {
+        "word": "切ない",
+        "reading": "setsunai",
+        "translation": "Мучительный, болезненный"
+    },
+    {
+        "word": "君",
+        "reading": "kimi",
+        "translation": "Ты (местоимение)"
+    },
+    {
+        "word": "届ける",
+        "reading": "todokeru",
+        "translation": "Доставлять, передавать"
+    },
+    {
+        "word": "強い",
+        "reading": "tsuyoi",
+        "translation": "Сильный"
+    },
+    {
+        "word": "心",
+        "reading": "kokoro",
+        "translation": "Сердце, душа"
+    },
+    {
+        "word": "思い",
+        "reading": "omoi",
+        "translation": "Чувство, мысль"
+    },
+    {
+        "word": "日々",
+        "reading": "hibi",
+        "translation": "Дни"
+    },
+    {
+        "word": "書く",
+        "reading": "kaku",
+        "translation": "Писать"
+    },
+    {
+        "word": "歌",
+        "reading": "uta",
+        "translation": "Песня"
+    },
+    {
+        "word": "歌う",
+        "reading": "utau",
+        "translation": "Петь"
+    },
+    {
+        "word": "消える",
+        "reading": "kieru",
+        "translation": "Исчезать, гаснуть"
+    },
+    {
+        "word": "為",
+        "reading": "tame",
+        "translation": "Ради, для"
+    },
+    {
+        "word": "町角",
+        "reading": "machikado",
+        "translation": "Угол улицы"
+    },
+    {
+        "word": "祈り",
+        "reading": "inori",
+        "translation": "Молитва, моление"
+    },
+    {
+        "word": "終わり",
+        "reading": "owari",
+        "translation": "Конец"
+    },
+    {
+        "word": "続ける",
+        "reading": "tsuzukeru",
+        "translation": "Продолжать"
+    },
+    {
+        "word": "聞こえる",
+        "reading": "kikoeru",
+        "translation": "Слышаться"
+    },
+    {
+        "word": "舞い上がる",
+        "reading": "maiagaru",
+        "translation": "Взлетать, кружиться"
+    },
+    {
+        "word": "込める",
+        "reading": "komeru",
+        "translation": "Вкладывать, включать"
+    },
+    {
+        "word": "追憶",
+        "reading": "tsuioku",
+        "translation": "Воспоминания"
+    },
+    {
+        "word": "降る",
+        "reading": "furu",
+        "translation": "Падать (о дожде, снеге)"
+    },
+    {
+        "word": "雲",
+        "reading": "kumo",
+        "translation": "Облако"
+    },
+    {
+        "word": "フィルム",
+        "reading": "firumu",
+        "translation": "Пленка, фильм"
+    },
+    {
+        "word": "一緒",
+        "reading": "issho",
+        "translation": "Вместе"
+    },
+    {
+        "word": "与える",
+        "reading": "ataeru",
+        "translation": "Давать, предоставлять"
+    },
+    {
+        "word": "事",
+        "reading": "koto",
+        "translation": "Вещь, дело"
+    },
+    {
+        "word": "仲間",
+        "reading": "nakama",
+        "translation": "Товарищ, друг"
+    },
+    {
+        "word": "側",
+        "reading": "gawa",
+        "translation": "Сторона"
+    },
+    {
+        "word": "叶う",
+        "reading": "kanau",
+        "translation": "Сбываться (о мечте)"
+    },
+    {
+        "word": "叶える",
+        "reading": "kanaeru",
+        "translation": "Исполнять (мечту)"
+    },
+    {
+        "word": "向こう側",
+        "reading": "mukōgawa",
+        "translation": "Та сторона, противоположная сторона"
+    },
+    {
+        "word": "君-代名詞",
+        "reading": "kimi",
+        "translation": "Ты (местоимение)"
+    },
+    {
+        "word": "大人",
+        "reading": "otona",
+        "translation": "Взрослый"
+    },
+    {
+        "word": "始める",
+        "reading": "hajimeru",
+        "translation": "Начинать"
+    },
+    {
+        "word": "彼方",
+        "reading": "kanata",
+        "translation": "Там, за пределами"
+    },
+    {
+        "word": "待つ",
+        "reading": "matsu",
+        "translation": "Ждать"
+    },
+    {
+        "word": "挫ける",
+        "reading": "kujikeru",
+        "translation": "Сломаться, пасть духом"
+    },
+    {
+        "word": "振り返る",
+        "reading": "furikaeru",
+        "translation": "Оглядываться, вспоминать"
+    },
+    {
+        "word": "旅",
+        "reading": "tabi",
+        "translation": "Путешествие"
+    },
+    {
+        "word": "昨日",
+        "reading": "kinō",
+        "translation": "Вчера"
+    },
+    {
+        "word": "未来",
+        "reading": "mirai",
+        "translation": "Будущее"
+    },
+    {
+        "word": "果て",
+        "reading": "hate",
+        "translation": "Конец, край"
+    },
+    {
+        "word": "海",
+        "reading": "umi",
+        "translation": "Море"
+    },
+    {
+        "word": "繋ぐ",
+        "reading": "tsunagu",
+        "translation": "Соединять, связывать"
+    },
+    {
+        "word": "自分",
+        "reading": "jibun",
+        "translation": "Сам, себя"
+    },
+    {
+        "word": "自身",
+        "reading": "jishin",
+        "translation": "Сам, собственно"
+    },
+    {
+        "word": "自転",
+        "reading": "jiten",
+        "translation": "Вращение (планеты), велосипед"
+    },
+    {
+        "word": "行く",
+        "reading": "iku",
+        "translation": "Идти, ехать"
+    },
+    {
+        "word": "見失う",
+        "reading": "miushinau",
+        "translation": "Терять из виду"
+    },
+    {
+        "word": "見詰める",
+        "reading": "mitsumeru",
+        "translation": "Пристально смотреть"
+    },
+    {
+        "word": "記憶",
+        "reading": "kioku",
+        "translation": "Память, воспоминание"
+    },
+    {
+        "word": "諦める",
+        "reading": "akirameru",
+        "translation": "Сдаваться, отчаиваться"
+    },
+    {
+        "word": "負け",
+        "reading": "make",
+        "translation": "Поражение, проигрыш"
+    },
+    {
+        "word": "車",
+        "reading": "kuruma",
+        "translation": "Машина, автомобиль"
+    },
+    {
+        "word": "輝く",
+        "reading": "kagayaku",
+        "translation": "Сиять, сверкать"
+    },
+    {
+        "word": "追い掛ける",
+        "reading": "oikakeru",
+        "translation": "Преследовать, догонять"
+    },
+    {
+        "word": "途切れ",
+        "reading": "togire",
+        "translation": "Прерывание"
+    },
+    {
+        "word": "遠い",
+        "reading": "tōi",
+        "translation": "Далекий"
+    },
+    {
+        "word": "限り無い",
+        "reading": "kagirinai",
+        "translation": "Бесконечный, безграничный"
+    },
+    {
+        "word": "青い",
+        "reading": "aoi",
+        "translation": "Синий, голубой"
+    },
+    {
+        "word": "青空",
+        "reading": "aozora",
+        "translation": "Голубое небо"
+    },
+    {
+        "word": "願う",
+        "reading": "negau",
+        "translation": "Желать, просить"
     }
 ]

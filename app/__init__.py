@@ -3,7 +3,7 @@ import json
 import traceback
 from datetime import timedelta
 
-from flask import Flask, request, jsonify, send_from_directory, current_app
+from flask import Flask, request, jsonify, send_from_directory, current_app, redirect, url_for
 from werkzeug.exceptions import HTTPException, NotFound
 
 from flask_cors import CORS
@@ -69,6 +69,10 @@ def create_app():
     # Store the JWTManager instance in a variable to avoid the KeyError
     jwt = JWTManager(app)
     Migrate(app, db) # Initializes Flask-Migrate
+
+    @app.route('/')
+    def home():
+        return redirect(('/lyrics'))
 
     # 4. Application-specific Initialization (needs app context for logger, etc.)
     with app.app_context():
