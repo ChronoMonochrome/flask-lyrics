@@ -557,5 +557,340 @@
         "word": "願う",
         "reading": "negau",
         "translation": "Желать, просить"
+    },
+    {
+        "word": "とても",
+        "reading": "totemo",
+        "translation": "Очень, весьма"
+    },
+    {
+        "word": "のぞい",
+        "reading": "nozoi",
+        "translation": "Часть глагола 'のぞく' (nozoku) - заглядывать, выглядывать"
+    },
+    {
+        "word": "ひぐらし",
+        "reading": "higurashi",
+        "translation": "Цикада (один из видов, поющий вечером)"
+    },
+    {
+        "word": "やすみ",
+        "reading": "yasumi",
+        "translation": "Отдых, перерыв"
+    },
+    {
+        "word": "わりゆく",
+        "reading": "wariyuku",
+        "translation": "Изменяться, заканчиваться (от '別れる' (wakareru) - расставаться + '行く' (yuku) - идти)"
+    },
+    {
+        "word": "モノ",
+        "reading": "mono",
+        "translation": "Вещь, предмет"
+    },
+    {
+        "word": "モリ",
+        "reading": "mori",
+        "translation": "Лес"
+    },
+    {
+        "word": "ヤシロ",
+        "reading": "yashiro",
+        "translation": "Святилище"
+    },
+    {
+        "word": "一瞬",
+        "reading": "isshun",
+        "translation": "Мгновение, миг"
+    },
+    {
+        "word": "会う",
+        "reading": "au",
+        "translation": "Встречать(ся)"
+    },
+    {
+        "word": "優しい",
+        "reading": "yasashii",
+        "translation": "Нежный, добрый"
+    },
+    {
+        "word": "入り",
+        "reading": "iri",
+        "translation": "Вход"
+    },
+    {
+        "word": "冷たい",
+        "reading": "tsumetai",
+        "translation": "Холодный"
+    },
+    {
+        "word": "切り落とす",
+        "reading": "kiriotosu",
+        "translation": "Отрезать, срубать"
+    },
+    {
+        "word": "叫ぶ",
+        "reading": "sakebu",
+        "translation": "Кричать, вопить"
+    },
+    {
+        "word": "合わせ鏡",
+        "reading": "awasekagami",
+        "translation": "Зеркала напротив (создающие бесконечное отражение)"
+    },
+    {
+        "word": "名",
+        "reading": "na",
+        "translation": "Имя"
+    },
+    {
+        "word": "吸い込む",
+        "reading": "suikomu",
+        "translation": "Вдыхать, втягивать"
+    },
+    {
+        "word": "嘆き",
+        "reading": "nageki",
+        "translation": "Горе, скорбь"
+    },
+    {
+        "word": "声",
+        "reading": "koe",
+        "translation": "Голос"
+    },
+    {
+        "word": "変わり行く",
+        "reading": "kawariyuku",
+        "translation": "Изменяющийся"
+    },
+    {
+        "word": "始まり",
+        "reading": "hajimari",
+        "translation": "Начало"
+    },
+    {
+        "word": "姿",
+        "reading": "sugata",
+        "translation": "Вид, облик"
+    },
+    {
+        "word": "子",
+        "reading": "ko",
+        "translation": "Ребёнок"
+    },
+    {
+        "word": "子守り",
+        "reading": "komori",
+        "translation": "Няня, колыбельная"
+    },
+    {
+        "word": "居る",
+        "reading": "iru",
+        "translation": "Находиться, быть (одушевлённый)"
+    },
+    {
+        "word": "幼い",
+        "reading": "osanai",
+        "translation": "Маленький, детский"
+    },
+    {
+        "word": "影",
+        "reading": "kage",
+        "translation": "Тень"
+    },
+    {
+        "word": "微量",
+        "reading": "biryō",
+        "translation": "Малое количество"
+    },
+    {
+        "word": "恐れ",
+        "reading": "osore",
+        "translation": "Страх, боязнь"
+    },
+    {
+        "word": "悲鳴",
+        "reading": "himei",
+        "translation": "Крик, вопль"
+    },
+    {
+        "word": "手々",
+        "reading": "tete",
+        "translation": "Руки (усиление или уменьшительно-ласкательное)"
+    },
+    {
+        "word": "日",
+        "reading": "hi",
+        "translation": "День, солнце"
+    },
+    {
+        "word": "映る",
+        "reading": "utsuru",
+        "translation": "Отражаться"
+    },
+    {
+        "word": "時間",
+        "reading": "jikan",
+        "translation": "Время"
+    },
+    {
+        "word": "晴れ",
+        "reading": "hare",
+        "translation": "Ясная погода"
+    },
+    {
+        "word": "月影",
+        "reading": "tsukikage",
+        "translation": "Свет луны, тень луны"
+    },
+    {
+        "word": "望む",
+        "reading": "nozomu",
+        "translation": "Желать, надеяться"
+    },
+    {
+        "word": "木",
+        "reading": "ki",
+        "translation": "Дерево"
+    },
+    {
+        "word": "染まる",
+        "reading": "somaru",
+        "translation": "Окрашиваться"
+    },
+    {
+        "word": "楽しい",
+        "reading": "tanoshii",
+        "translation": "Весёлый, приятный"
+    },
+    {
+        "word": "歌",
+        "reading": "uta",
+        "translation": "Песня"
+    },
+    {
+        "word": "止める",
+        "reading": "yameru",
+        "translation": "Останавливать"
+    },
+    {
+        "word": "此れ",
+        "reading": "kore",
+        "translation": "Это"
+    },
+    {
+        "word": "泣く",
+        "reading": "naku",
+        "translation": "Плакать"
+    },
+    {
+        "word": "消える",
+        "reading": "kieru",
+        "translation": "Исчезать, гаснуть"
+    },
+    {
+        "word": "深い",
+        "reading": "fukai",
+        "translation": "Глубокий"
+    },
+    {
+        "word": "炎",
+        "reading": "honō",
+        "translation": "Пламя"
+    },
+    {
+        "word": "無い",
+        "reading": "nai",
+        "translation": "Нет, отсутствует"
+    },
+    {
+        "word": "祭り",
+        "reading": "matsuri",
+        "translation": "Праздник, фестиваль"
+    },
+    {
+        "word": "笑み",
+        "reading": "emi",
+        "translation": "Улыбка"
+    },
+    {
+        "word": "置き去り",
+        "reading": "okizari",
+        "translation": "Брошенный, оставленный"
+    },
+    {
+        "word": "羽根",
+        "reading": "hane",
+        "translation": "Перо, крыло"
+    },
+    {
+        "word": "者",
+        "reading": "mono",
+        "translation": "Человек"
+    },
+    {
+        "word": "聞く",
+        "reading": "kiku",
+        "translation": "Слушать, спрашивать"
+    },
+    {
+        "word": "良い",
+        "reading": "yoi/ii",
+        "translation": "Хороший"
+    },
+    {
+        "word": "落とす",
+        "reading": "otosu",
+        "translation": "Ронять"
+    },
+    {
+        "word": "見る",
+        "reading": "miru",
+        "translation": "Смотреть"
+    },
+    {
+        "word": "誰",
+        "reading": "dare",
+        "translation": "Кто"
+    },
+    {
+        "word": "赤い",
+        "reading": "akai",
+        "translation": "Красный"
+    },
+    {
+        "word": "起き",
+        "reading": "oki",
+        "translation": "Пробуждение"
+    },
+    {
+        "word": "針",
+        "reading": "hari",
+        "translation": "Игла, стрелка"
+    },
+    {
+        "word": "閉じる",
+        "reading": "tojiru",
+        "translation": "Закрывать"
+    },
+    {
+        "word": "面",
+        "reading": "men",
+        "translation": "Лицо, маска"
+    },
+    {
+        "word": "顔",
+        "reading": "kao",
+        "translation": "Лицо"
+    },
+    {
+        "word": "髪",
+        "reading": "kami",
+        "translation": "Волосы"
+    },
+    {
+        "word": "鬼",
+        "reading": "oni",
+        "translation": "Демон, чёрт"
     }
 ]
