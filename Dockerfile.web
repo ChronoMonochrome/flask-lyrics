@@ -49,7 +49,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the data files (words.ljson, words.idx, lyrics.json) into the container
 # This is crucial for the app to find the word and lyrics data.
-COPY ./data /app/app/static/data
+COPY ./app/static/data /app/app/static/data
 
 # Copy the built frontend assets from the frontend_builder stage.
 # The 'build' folder is now expected to be located inside /usr/src/app/repo_source/build.

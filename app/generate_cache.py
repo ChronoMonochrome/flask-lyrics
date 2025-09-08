@@ -7,8 +7,9 @@ from .lyrics_utils import generate_lyrics_page_html
 # and the data directory is app/static/data
 # The cache directory will be app/static/cache
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, '../data')
-CACHE_DIR = os.path.join(BASE_DIR, '../cache')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+DATA_DIR = os.path.join(STATIC_DIR, 'data')
+CACHE_DIR = os.path.join(STATIC_DIR, 'cache')
 
 initialize_word_database()
 
