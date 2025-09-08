@@ -892,5 +892,400 @@
         "word": "鬼",
         "reading": "oni",
         "translation": "Демон, чёрт"
+    },
+    {
+        "word": "あたり",
+        "reading": "atari",
+        "translation": "Окрестности, вокруг"
+    },
+    {
+        "word": "ありがと",
+        "reading": "arigato",
+        "translation": "Спасибо (сокращённая форма)"
+    },
+    {
+        "word": "いい",
+        "reading": "ii",
+        "translation": "Хороший"
+    },
+    {
+        "word": "いつ",
+        "reading": "itsu",
+        "translation": "Когда"
+    },
+    {
+        "word": "この",
+        "reading": "kono",
+        "translation": "Этот"
+    },
+    {
+        "word": "それ",
+        "reading": "sore",
+        "translation": "То"
+    },
+    {
+        "word": "そんな",
+        "reading": "sonna",
+        "translation": "Такой"
+    },
+    {
+        "word": "ただ",
+        "reading": "tada",
+        "translation": "Просто, только"
+    },
+    {
+        "word": "だけ",
+        "reading": "dake",
+        "translation": "Только"
+    },
+    {
+        "word": "だろう",
+        "reading": "darou",
+        "translation": "Вероятно, наверное"
+    },
+    {
+        "word": "って",
+        "reading": "tte",
+        "translation": "Разговорная частица, обозначает цитирование или тему"
+    },
+    {
+        "word": "です",
+        "reading": "desu",
+        "translation": "Глагол-связка (быть)"
+    },
+    {
+        "word": "どう",
+        "reading": "dō",
+        "translation": "Как, каким образом"
+    },
+    {
+        "word": "はず",
+        "reading": "hazu",
+        "translation": "Должен (выражает уверенность)"
+    },
+    {
+        "word": "ぷかり",
+        "reading": "pukari",
+        "translation": "Звук всплывания или лёгкого плавания"
+    },
+    {
+        "word": "ぼっち",
+        "reading": "bocchi",
+        "translation": "Одинокий (разговорное)"
+    },
+    {
+        "word": "ぽかん",
+        "reading": "pokan",
+        "translation": "Оцепенение, открыв рот от удивления"
+    },
+    {
+        "word": "まで",
+        "reading": "made",
+        "translation": "До (какого-то места, времени)"
+    },
+    {
+        "word": "もう",
+        "reading": "mou",
+        "translation": "Уже, еще"
+    },
+    {
+        "word": "もの",
+        "reading": "mono",
+        "translation": "Вещь, предмет"
+    },
+    {
+        "word": "やつ",
+        "reading": "yatsu",
+        "translation": "Парень, штука (разговорное)"
+    },
+    {
+        "word": "バランス",
+        "reading": "baransu",
+        "translation": "Баланс"
+    },
+    {
+        "word": "一緒",
+        "reading": "issho",
+        "translation": "Вместе"
+    },
+    {
+        "word": "上",
+        "reading": "ue",
+        "translation": "Сверху, на"
+    },
+    {
+        "word": "付く",
+        "reading": "tsuku",
+        "translation": "Прилипать, прикрепляться"
+    },
+    {
+        "word": "位置",
+        "reading": "ichi",
+        "translation": "Позиция, местоположение"
+    },
+    {
+        "word": "保つ",
+        "reading": "tamotsu",
+        "translation": "Поддерживать, сохранять"
+    },
+    {
+        "word": "俯く",
+        "reading": "utsumuku",
+        "translation": "Опускать голову"
+    },
+    {
+        "word": "元々",
+        "reading": "motomoto",
+        "translation": "Изначально, изначально"
+    },
+    {
+        "word": "冷める",
+        "reading": "sameru",
+        "translation": "Остывать, остывать (о чувствах)"
+    },
+    {
+        "word": "冷却",
+        "reading": "reikyaku",
+        "translation": "Охлаждение"
+    },
+    {
+        "word": "処分",
+        "reading": "shobun",
+        "translation": "Утилизация, наказание"
+    },
+    {
+        "word": "分かる",
+        "reading": "wakaru",
+        "translation": "Понимать, знать"
+    },
+    {
+        "word": "刻み",
+        "reading": "kizami",
+        "translation": "Нарезка, гравировка, отпечаток"
+    },
+    {
+        "word": "太陽",
+        "reading": "taiyou",
+        "translation": "Солнце"
+    },
+    {
+        "word": "奪う",
+        "reading": "ubau",
+        "translation": "Отнимать, похищать"
+    },
+    {
+        "word": "安定",
+        "reading": "antei",
+        "translation": "Стабильность"
+    },
+    {
+        "word": "射する",
+        "reading": "sasu",
+        "translation": "Светить (о лучах), пронзать"
+    },
+    {
+        "word": "工場",
+        "reading": "koujou",
+        "translation": "Фабрика, завод"
+    },
+    {
+        "word": "希望",
+        "reading": "kibou",
+        "translation": "Надежда"
+    },
+    {
+        "word": "席",
+        "reading": "seki",
+        "translation": "Место (сидячее)"
+    },
+    {
+        "word": "廃棄",
+        "reading": "haiki",
+        "translation": "Утилизация, сброс"
+    },
+    {
+        "word": "従う",
+        "reading": "shitagau",
+        "translation": "Следовать, подчиняться"
+    },
+    {
+        "word": "必死",
+        "reading": "hisshi",
+        "translation": "Отчаянный, смертельный"
+    },
+    {
+        "word": "息",
+        "reading": "iki",
+        "translation": "Дыхание"
+    },
+    {
+        "word": "拍",
+        "reading": "haku",
+        "translation": "Пульс, такт"
+    },
+    {
+        "word": "拍子",
+        "reading": "hyoushi",
+        "translation": "Ритм, такт"
+    },
+    {
+        "word": "指定",
+        "reading": "shitei",
+        "translation": "Назначение, указание"
+    },
+    {
+        "word": "曇る",
+        "reading": "kumoru",
+        "translation": "Становиться пасмурным"
+    },
+    {
+        "word": "曖昧",
+        "reading": "aimai",
+        "translation": "Неясный, смутный"
+    },
+    {
+        "word": "最初",
+        "reading": "saisho",
+        "translation": "Начало, первый"
+    },
+    {
+        "word": "最後",
+        "reading": "saigo",
+        "translation": "Конец, последний"
+    },
+    {
+        "word": "月",
+        "reading": "tsuki",
+        "translation": "Луна"
+    },
+    {
+        "word": "止む",
+        "reading": "yamu",
+        "translation": "Прекращаться, останавливаться"
+    },
+    {
+        "word": "此処",
+        "reading": "koko",
+        "translation": "Здесь"
+    },
+    {
+        "word": "毎日",
+        "reading": "mainichi",
+        "translation": "Каждый день"
+    },
+    {
+        "word": "気",
+        "reading": "ki",
+        "translation": "Дух, энергия, настроение"
+    },
+    {
+        "word": "浮く",
+        "reading": "uku",
+        "translation": "Плавать, всплывать"
+    },
+    {
+        "word": "溺れる",
+        "reading": "oboreru",
+        "translation": "Тонуть"
+    },
+    {
+        "word": "潰す",
+        "reading": "tsubusu",
+        "translation": "Давить, раздавливать"
+    },
+    {
+        "word": "独りぼっち",
+        "reading": "hitoribocchi",
+        "translation": "Совсем один, в полном одиночестве"
+    },
+    {
+        "word": "現実",
+        "reading": "genjitsu",
+        "translation": "Реальность"
+    },
+    {
+        "word": "生きる",
+        "reading": "ikiru",
+        "translation": "Жить"
+    },
+    {
+        "word": "皆",
+        "reading": "minna",
+        "translation": "Все"
+    },
+    {
+        "word": "眠る",
+        "reading": "nemuru",
+        "translation": "Спать"
+    },
+    {
+        "word": "眩しい",
+        "reading": "mabushii",
+        "translation": "Ослепительный, яркий"
+    },
+    {
+        "word": "確保",
+        "reading": "kakuho",
+        "translation": "Обеспечение, гарантия"
+    },
+    {
+        "word": "窓",
+        "reading": "mado",
+        "translation": "Окно"
+    },
+    {
+        "word": "立ち",
+        "reading": "tachi",
+        "translation": "Стоя (форма глагола '立つ' - tatsu)"
+    },
+    {
+        "word": "競い合う",
+        "reading": "kisoiau",
+        "translation": "Соревноваться"
+    },
+    {
+        "word": "細める",
+        "reading": "hosomeru",
+        "translation": "Сужать, прищуривать"
+    },
+    {
+        "word": "行方",
+        "reading": "yukue",
+        "translation": "Местонахождение, судьба"
+    },
+    {
+        "word": "見せる",
+        "reading": "miseru",
+        "translation": "Показывать"
+    },
+    {
+        "word": "覚める",
+        "reading": "sameru",
+        "translation": "Просыпаться"
+    },
+    {
+        "word": "辿り着く",
+        "reading": "tadoritsuku",
+        "translation": "Добираться, доходить"
+    },
+    {
+        "word": "迷子",
+        "reading": "maigo",
+        "translation": "Потерявшийся ребёнок"
+    },
+    {
+        "word": "進行",
+        "reading": "shinkou",
+        "translation": "Продвижение, ход"
+    },
+    {
+        "word": "間",
+        "reading": "aida",
+        "translation": "Между, промежуток"
+    },
+    {
+        "word": "電車",
+        "reading": "densha",
+        "translation": "Поезд"
     }
 ]
