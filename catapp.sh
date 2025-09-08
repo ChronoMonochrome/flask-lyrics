@@ -1,4 +1,4 @@
-find .
+find .  | grep -v .git  |grep -v node_modules
 catfile() {
    echo cat $1
    cat $1
