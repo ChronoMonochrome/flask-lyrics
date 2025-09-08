@@ -1,9 +1,9 @@
 import traceback
-from flask import Blueprint, jsonify, current_app, request, make_response
+from flask import Blueprint, jsonify, current_app, request, make_response, redirect, url_for
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.exceptions import HTTPException, InternalServerError, Unauthorized, BadRequest, Forbidden, NotFound
-from app.models import db, User # Removed Riddle, Answer, UserProgress for brevity, add back if needed
-from sqlalchemy.orm import joinedload # Not used if Riddle/Answer are removed
+from app.models import db, User 
+from sqlalchemy.orm import joinedload
 from datetime import datetime
 import json
 from decimal import Decimal
@@ -13,7 +13,7 @@ import random
 from flask_jwt_extended import (
     create_access_token,
     jwt_required,
-    JWTManager, # You already have this
+    JWTManager, 
     get_jwt_identity
 )
 
@@ -31,8 +31,6 @@ from flask_jwt_extended.exceptions import (
 
 import os
 from dotenv import load_dotenv
-
-from .lyrics_utils import generate_lyrics_page_html
 
 from . import LYRICS_DATA, VOCABULARY_DATA, get_words_db
 
@@ -134,19 +132,16 @@ class UserProfile(Resource):
         return api.marshal(user, user_model)
 
 # Error Handlers for Flask-RESTx
-
-# Specifically catch ExpiredSignatureError from PyJWT and similar JWT errors
 @api.errorhandler(jwt_py_exceptions.ExpiredSignatureError)
-@api.errorhandler(jwt_py_exceptions.InvalidTokenError) # Catch general invalid token errors from PyJWT
+@api.errorhandler(jwt_py_exceptions.InvalidTokenError)
 def handle_pyjwt_exceptions(error):
     current_app.logger.warning(f"PyJWT Error: {type(error).__name__} - {error.args[0]}")
     response_data = {
         "message": "Authentication required. Your session has expired or is invalid.",
         "status": 401,
         "error_type": type(error).__name__,
-        "redirect_to_home": True # Signal to the frontend to redirect
+        "redirect_to_home": True
     }
-    # Return a dictionary and status code; Flask-RestX will jsonify it.
     return response_data, 401
 
 
@@ -156,7 +151,6 @@ def handle_pyjwt_exceptions(error):
 @api.errorhandler(Forbidden)
 def handle_restx_http_exception(error):
     current_app.logger.error(f"RESTX HTTP Error: {error.code} - {error.description}")
-    # Return a dictionary and status code; Flask-RestX will jsonify it.
     return {
         'message': error.description,
         'status': error.code,
@@ -165,40 +159,25 @@ def handle_restx_http_exception(error):
 
 @api.errorhandler(NoAuthorizationError)
 @api.errorhandler(InvalidHeaderError)
-@api.errorhandler(JWTDecodeError) # Keeping this to catch other general decode errors
+@api.errorhandler(JWTDecodeError)
 @api.errorhandler(WrongTokenError)
 @api.errorhandler(RevokedTokenError)
 @api.errorhandler(FreshTokenRequired)
 @api.errorhandler(UserClaimsVerificationError)
-def handle_flask_jwt_extended_exceptions(error): # Renamed for clarity
+def handle_flask_jwt_extended_exceptions(error): 
     current_app.logger.error(f"Flask-JWT-Extended Error: {type(error).__name__} - {error.args[0]}")
-    # If a specific JWT error implies session invalidation, signal redirect
     redirect_needed = isinstance(error, (RevokedTokenError, NoAuthorizationError, InvalidHeaderError, WrongTokenError))
-    # Return a dictionary and status code; Flask-RestX will jsonify it.
     return {
         "message": str(error),
         "status": 401,
         "error_type": type(error).__name__,
-        "redirect_to_home": redirect_needed # Signal to the frontend
+        "redirect_to_home": redirect_needed 
     }, 401
 
 @api.errorhandler(Exception)
 def handle_api_exception(e):
-    # If the exception is an HTTPException (like those from api.abort),
-    # let the more specific HTTP error handlers (like handle_restx_http_exception)
-    # or Flask-RestX's default for HTTPExceptions take over.
-    # CRITICAL FIX: DO NOT return jsonify directly here for HTTPExceptions.
-    # Flask-RestX's internal `error_router` expects the exception object itself
-    # or a tuple (response_data, status_code) where response_data is a dict.
-    # If you return a `Response` object here, it disrupts the flow.
     if isinstance(e, HTTPException):
-        # Allow Flask-RESTx to handle its own HTTPExceptions
-        # Flask-RestX will catch this and pass it to its specific error handlers
-        # or render its default error page/JSON.
-        # This line effectively stops the current handler from processing it
-        # and allows the exception to propagate to Flask-RestX's error_router.
-        current_app.logger.debug(f"API Unhandled Exception: Caught HTTPException {type(e).__name__} for general handler, letting specific handler or default take over.")
-        raise e # Re-raise the exception for Flask-RESTX's internal handling
+        raise e 
 
     current_app.logger.error(f"API Unhandled Exception: {e}\n{traceback.format_exc()}")
     is_debug_mode = current_app.debug
@@ -208,7 +187,6 @@ def handle_api_exception(e):
         'error_type': type(e).__name__,
         'details': traceback.format_exc() if is_debug_mode else 'Please contact support.'
     }
-    # Return a dictionary and status code; Flask-RestX will jsonify it.
     return response, 500
 
 # Namespace for Word Lookup
@@ -258,29 +236,17 @@ class LyricsList(Resource):
 @lyrics_ns.route('/<string:song_id>/html')
 class LyricsHtml(Resource):
     @api.doc(params={'song_id': 'The ID of the song to retrieve lyrics for'})
-    @api.response(200, 'Success', fields.String(description='HTML content of the song lyrics with vocabulary'))
+    @api.response(302, 'Redirect to cached HTML')
     @api.response(404, 'Song not found')
     def get(self, song_id):
-        """Returns the HTML content for a specific song, including linked words and vocabulary."""
-        song_data = LYRICS_DATA.get(song_id)
-        if not song_data:
+        """Redirects to the pre-generated HTML for a specific song."""
+        if song_id not in LYRICS_DATA:
             api.abort(404, f"Song with ID '{song_id}' not found.")
-
-        try:
-            # Generate the HTML using the utility function
-            lyrics_html = generate_lyrics_page_html(song_data, VOCABULARY_DATA)
-
-            # CRITICAL FIX: Use make_response to create a proper response object
-            # and set its content_type. This bypasses Flask-RESTx's serialization
-            # and ensures the string is returned as raw HTML.
-            resp = make_response(lyrics_html)
-            resp.content_type = 'text/html; charset=utf-8'
-            return resp
-        except Exception as e:
-            current_app.logger.error(f"Error generating HTML for song {song_id}: {e}", exc_info=True)
-            api.abort(500, "Internal Server Error generating lyrics HTML.")
+        
+        # Redirect to the statically served HTML file
+        return redirect(url_for('serve_lyrics_cache', filename=f"{song_id}.html"))
 
 # Register namespaces with the API
 api.add_namespace(auth_ns)
-api.add_namespace(words_ns) # New namespace registration
-api.add_namespace(lyrics_ns) # NEW namespace registration
+api.add_namespace(words_ns) 
+api.add_namespace(lyrics_ns)

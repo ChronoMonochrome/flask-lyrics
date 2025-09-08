@@ -34,8 +34,6 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     default-libmysqlclient-dev \
     gcc \
-    # Add any other missing dependencies here if needed, e.g., git if you rely on it
-    # for cloning data inside the container (though we are copying from host now)
     && rm -rf /var/lib/apt/lists/*
 
 # Create the /app/app/static directory BEFORE copying into it
@@ -64,10 +62,18 @@ RUN chmod -R 775 /app/app/static
 # Make sure your local 'app' directory and 'logger.py' are in the root of your project context
 COPY app /app/app
 
+# Run the script to generate the HTML cache and song list file
+# This step happens during the image build process, AFTER the app code is copied
+RUN mkdir -p app/static/cache && python -m app.generate_cache
+
+# NOTE: The cache is now generated on the host and mounted via a volume.
+# REMOVE the following line from your Dockerfile:
+# RUN mkdir -p app/static/cache && python -m app.generate_cache
 
 # Expose port 8012, where Gunicorn will listen
 EXPOSE 8012
 
 # Command to run Gunicorn.
-# 'app:app' refers to the 'app' Flask instance within the 'app' module (i.e., app/__init__.py).
+# 'app:create_app()' tells gunicorn to call the create_app() function
+# inside the app module to get the Flask application instance.
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8012", "--access-logfile", "-", "--error-logfile", "-", "app:create_app()"]

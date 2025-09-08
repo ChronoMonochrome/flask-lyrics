@@ -39,6 +39,9 @@ services:
       # Ensure the database service is up and healthy before starting the web service
       db:
         condition: service_healthy # Changed condition to wait for healthcheck
+    volumes:
+      # Map the host's cache directory to the container
+      - ./app/static/cache:/app/app/static/cache
     networks:
       # Connect to the custom application network
       - app_network

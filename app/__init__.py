@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import traceback
 from datetime import timedelta
@@ -20,6 +21,25 @@ LYRICS_DATA = {}
 WORDS_DB_INSTANCE = None
 
 VOCABULARY_DATA = {}
+
+def initialize_word_database():
+    """
+    Initializes the Japanese word database.
+    This function is standalone and can be called from any script.
+    """
+    global WORDS_DB_INSTANCE
+    # Use os.path.dirname to get the directory of the current file (__init__.py)
+    frontend_build_root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    words_data_file = os.path.join(frontend_build_root_path, 'data', 'words.ljson')
+    words_index_file = os.path.join(frontend_build_root_path, 'data', 'words.idx')
+
+    try:
+        WORDS_DB_INSTANCE = FlatFileDatabase(words_data_file, words_index_file)
+        WORDS_DB_INSTANCE.load_data()
+        print("Japanese word database initialized successfully.")
+    except Exception as e:
+        print(f"Failed to initialize word database: {e}", file=sys.stderr)
+        WORDS_DB_INSTANCE = None # Set to None on failure
 
 def create_app():
     """
@@ -88,44 +108,41 @@ def create_app():
             app.logger.error(f"Error decoding vocab JSON from {vocab_file_path}: {e}")
         except Exception as e:
             app.logger.error(f"An unexpected error occurred loading vocab data: {e}")
-
-        # --- Load lyrics data from all JSON files in the lyrics directory ---
-        lyrics_dir_path = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'lyrics')
+        
+        # --- Lyrics data loading logic is now updated to handle multiple files ---
+        lyrics_dir = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'lyrics')
         global LYRICS_DATA
-        total_songs_loaded = 0
-        if os.path.exists(lyrics_dir_path):
-            for root, dirs, files in os.walk(lyrics_dir_path):
-                for file in files:
-                    if file.endswith('.json'):
-                        file_path = os.path.join(root, file)
+        LYRICS_DATA = {}
+        if os.path.exists(lyrics_dir):
+            for root, _, files in os.walk(lyrics_dir):
+                for file_name in files:
+                    if file_name.endswith('.json'):
+                        file_path = os.path.join(root, file_name)
                         try:
                             with open(file_path, 'r', encoding='utf-8') as f:
-                                data = json.load(f)
-                                for song in data.get('songs', []):
-                                    LYRICS_DATA[song['id']] = song
-                                    total_songs_loaded += 1
-                            app.logger.info(f"Loaded songs from {file_path}")
-                        except json.JSONDecodeError as e:
-                            app.logger.error(f"Error decoding JSON from {file_path}: {e}")
-                        except Exception as e:
-                            app.logger.error(f"An unexpected error occurred loading data from {file_path}: {e}")
-            app.logger.info(f"Successfully loaded a total of {total_songs_loaded} songs from the lyrics directory.")
+                                # Get the songs list from the JSON file, or an empty list if not found
+                                songs_in_file = json.load(f).get('songs', [])
+                                for song_data in songs_in_file:
+                                    if 'id' in song_data and 'title' in song_data and 'artist' in song_data:
+                                        LYRICS_DATA[song_data['id']] = {
+                                            'title': song_data['title'],
+                                            'artist': song_data['artist']
+                                        }
+                                    else:
+                                        app.logger.warning(f"Skipping malformed song entry in {file_path}")
+                        except (IOError, json.JSONDecodeError) as e:
+                            app.logger.error(f"Error loading lyrics file {file_path}: {e}")
+            app.logger.info(f"Loaded {len(LYRICS_DATA)} songs from the lyrics directory.")
         else:
-            app.logger.error(f"Lyrics directory not found: {lyrics_dir_path}")
+            app.logger.error("Lyrics directory not found. The API may not function correctly.")
 
         # --- Initialize words database ---
-        # Corrected the variable name here from `FRONTEND_BUILD_ROOT_ROOT_PATH`
-        words_data_file = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'words.ljson')
-        words_index_file = os.path.join(FRONTEND_BUILD_ROOT_PATH, 'data', 'words.idx')
-
-        global WORDS_DB_INSTANCE
-        try:
-            WORDS_DB_INSTANCE = FlatFileDatabase(words_data_file, words_index_file)
-            WORDS_DB_INSTANCE.load_data()
-            app.logger.info("Japanese word database initialized successfully.")
-        except Exception as e:
-            app.logger.error(f"Failed to initialize word database: {e}", exc_info=True)
-            WORDS_DB_INSTANCE = None # Set to None on failure
+        # This function is now called directly from here
+        initialize_word_database()
+        if WORDS_DB_INSTANCE is None:
+             app.logger.error("Failed to initialize word database.")
+        else:
+             app.logger.info("Japanese word database initialized successfully.")
 
     # 5. Register blueprints
     # --- Register blueprints ---
@@ -154,6 +171,16 @@ def create_app():
     def serve_react_app():
         app.logger.info(f"Serving index.html for / from host {request.remote_addr}")
         return send_from_directory(FRONTEND_BUILD_ROOT_PATH, 'index.html')
+
+    # New route to serve cached lyrics HTML files directly
+    @app.route('/lyrics/cache/<path:filename>')
+    def serve_lyrics_cache(filename):
+        app.logger.info(f"Serving cached lyrics file: {filename}")
+        return send_from_directory(
+            os.path.join(FRONTEND_BUILD_ROOT_PATH, 'cache'),
+            filename,
+            mimetype='text/html; charset=utf-8'
+        )
 
     # Serve root-level static assets (favicon.ico, manifest.json) and handle client-side routing fallback.
     @app.route('/<path:path>')
